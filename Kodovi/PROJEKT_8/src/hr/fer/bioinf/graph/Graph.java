@@ -74,8 +74,36 @@ public class Graph {
 			int numberOfResidueMatches = Integer.parseInt(data[9]);
 			int alignmentBlockLength = Integer.parseInt(data[10]);
 
-			// TODO dodavanje susjednih cvorova u odnosu na preklapanje s koje strane
+			if (querySequenceName.equals(targetSequenceName)) {
+				continue;
+			}
 
+			Edge edge = new Edge(queryStart, queryEnd, relativeStrand, targetStart, targetEnd, numberOfResidueMatches,
+					alignmentBlockLength);
+
+			Node node = graph.nodes.get(querySequenceName);
+			node.setSequenceLength(querySequenceLength);
+
+			Node neighbour = graph.nodes.get(targetSequenceName);
+			neighbour.setSequenceLength(targetSequenceLength);
+
+			if (queryStart > targetStart && (querySequenceLength - queryEnd) < (targetSequenceLength - targetEnd)) {
+				edge.setQueryOverhang(querySequenceLength - queryEnd);
+				edge.setTargetOverhang(targetStart);
+				edge.setQueryExtension(queryStart);
+				edge.setTargetExtension(targetSequenceLength - targetEnd);
+				node.addRightNeighbour(edge, neighbour);
+				continue;
+			}
+
+			if (queryStart < targetStart && (querySequenceLength - queryEnd) > (targetSequenceLength - targetEnd)) {
+				edge.setQueryOverhang(queryStart);
+				edge.setTargetOverhang(targetSequenceLength - targetEnd);
+				edge.setQueryExtension(querySequenceLength - queryEnd);
+				edge.setTargetExtension(targetStart);
+				node.addLeftNeighbour(edge, neighbour);
+				continue;
+			}
 		}
 	}
 
