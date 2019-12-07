@@ -3,6 +3,8 @@ package hr.fer.bioinf;
 import java.io.IOException;
 
 import hr.fer.bioinf.graph.Graph;
+import hr.fer.bioinf.traversal.Approach1;
+import hr.fer.bioinf.traversal.Traversal;
 
 public class Main {
 
@@ -19,7 +21,8 @@ public class Main {
 
 		Graph graph = Graph.loadFromFiles(contigsPath, readsPath, contigsReadsOverlapsPath, contigsContigsOverlapsPath);
 
-		System.err.println(graph.getNodes().get("ctg1"));
+		Traversal t = new Approach1();
+		t.findPaths(graph);
 	}
 
 }
