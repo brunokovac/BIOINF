@@ -12,6 +12,8 @@ public class Node {
 	private Map<Edge, Node> leftNeighbours;
 	private Map<Edge, Node> rightNeighbours;
 
+	private Node previousNode;
+
 	public Node(String name, boolean anchor) {
 		this.name = name;
 		this.anchor = anchor;
@@ -49,6 +51,14 @@ public class Node {
 
 	public Map<Edge, Node> getRightNeighbours() {
 		return rightNeighbours;
+	}
+
+	public Node getPreviousNode() {
+		return previousNode;
+	}
+
+	public void setPreviousNode(Node previousNode) {
+		this.previousNode = previousNode;
 	}
 
 	@Override

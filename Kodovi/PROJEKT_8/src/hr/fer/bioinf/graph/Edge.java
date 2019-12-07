@@ -2,7 +2,7 @@ package hr.fer.bioinf.graph;
 
 public class Edge {
 
-	public static final double SEQUENCE_IDENTITY = 0.97;
+	public static final double SEQUENCE_IDENTITY_THRESHOLD = 0.8;
 
 	private int queryStart;
 	private int queryEnd;
@@ -116,6 +116,20 @@ public class Edge {
 		this.targetExtension = targetExtension;
 	}
 
+	private double sequenceIdentity = -1;
+
+	public double getSequenceIdentity() {
+		if (sequenceIdentity != -1) {
+			return sequenceIdentity;
+		}
+
+		int queryOverlap = queryEnd - queryStart;
+		int targetOverlap = targetEnd - targetStart;
+
+		this.sequenceIdentity = (double) numberOfResidueMatches / Math.max(queryOverlap, targetOverlap);
+		return sequenceIdentity;
+	}
+
 	private double overlapScore = -1;
 
 	public double getOverlapScore() {
@@ -126,7 +140,9 @@ public class Edge {
 		int queryOverlap = queryEnd - queryStart;
 		int targetOverlap = targetEnd - targetStart;
 
-		overlapScore = (queryOverlap + targetOverlap) * SEQUENCE_IDENTITY / 2;
+		double sequenceIdentity = getSequenceIdentity();
+
+		overlapScore = (queryOverlap + targetOverlap) * sequenceIdentity / 2;
 		return overlapScore;
 	}
 
