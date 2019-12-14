@@ -10,9 +10,9 @@ import hr.fer.bioinf.graph.Edge;
 import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.graph.Node;
 
-public class Approach1 implements Traversal {
+public class Approach1_2 implements Traversal {
 
-	private List<List<Node>> paths = new ArrayList<>();
+	private List<List<Node>> paths = new ArrayList();
 
 	private Comparator<Edge> comparator = new Comparator<Edge>() {
 
@@ -45,15 +45,9 @@ public class Approach1 implements Traversal {
 		}
 	};
 
-	private List<Node> path = new ArrayList<>();
-	private boolean deadEnd = true;
-
-	private void DFS(Node node, boolean right, int step) {
-		path.add(node);
-
+	private void DFS(Node node, int step, int highestScoreIndex, boolean right) {
 		if (node.isAnchor() && step != 1) {
-			paths.add(new ArrayList<>(path));
-			path.remove(path.size() - 1);
+			paths.add(Path.reconstructPath(node));
 			return;
 		}
 
@@ -61,21 +55,21 @@ public class Approach1 implements Traversal {
 
 		if (step == 1) {
 			for (Node neighbour : neighbours.values()) {
-				DFS(neighbour, right, step + 1);
+				neighbour.setPreviousNode(node);
+				DFS(neighbour, step + 1, 0, right);
 			}
 		} else {
 			if (neighbours.isEmpty()) {
-				deadEnd = true;
+				DFS(node.getPreviousNode(), step - 1, highestScoreIndex + 1, right);
 			} else {
 				List<Edge> edges = new ArrayList<>(neighbours.keySet());
 				Collections.sort(edges, comparator);
 
-				for (Edge edge : edges) {
-					if (deadEnd) {
-						deadEnd = false;
-						DFS(neighbours.get(edge), right, step + 1);
-					}
+				if (highestScoreIndex == neighbours.size()) {
+					return;
 				}
+
+				DFS(neighbours.get(edges.get(highestScoreIndex)), step + 1, 0, right);
 			}
 		}
 	}
@@ -84,10 +78,8 @@ public class Approach1 implements Traversal {
 	public List<List<Node>> findPaths(Graph graph) {
 		for (Node node : graph.getNodes().values()) {
 			if (node.isAnchor()) {
-				DFS(node, true, 1);
-				path.clear();
-				DFS(node, false, 1);
-				path.clear();
+				DFS(node, 1, 0, true);
+				DFS(node, 1, 0, false);
 			}
 		}
 
