@@ -78,8 +78,8 @@ public class Graph {
 				continue;
 			}
 
-			Edge edge = new Edge(queryStart, queryEnd, relativeStrand, targetStart, targetEnd, numberOfResidueMatches,
-					alignmentBlockLength);
+			Edge edge = new Edge(querySequenceName, queryStart, queryEnd, relativeStrand, targetSequenceName,
+					targetStart, targetEnd, numberOfResidueMatches, alignmentBlockLength);
 
 			Node node = graph.nodes.get(querySequenceName);
 			node.setSequenceLength(querySequenceLength);
@@ -92,7 +92,9 @@ public class Graph {
 				edge.setTargetOverhang(targetStart);
 				edge.setQueryExtension(queryStart);
 				edge.setTargetExtension(targetSequenceLength - targetEnd);
+
 				node.addRightNeighbour(edge, neighbour);
+				neighbour.addLeftNeighbour(edge, node);
 				continue;
 			}
 
@@ -101,7 +103,9 @@ public class Graph {
 				edge.setTargetOverhang(targetSequenceLength - targetEnd);
 				edge.setQueryExtension(querySequenceLength - queryEnd);
 				edge.setTargetExtension(targetStart);
+
 				node.addLeftNeighbour(edge, neighbour);
+				neighbour.addRightNeighbour(edge, node);
 				continue;
 			}
 		}
