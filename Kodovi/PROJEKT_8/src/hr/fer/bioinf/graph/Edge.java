@@ -4,9 +4,11 @@ public class Edge {
 
 	public static final double SEQUENCE_IDENTITY_THRESHOLD = 0.8;
 
+	private String querySequenceName;
 	private int queryStart;
 	private int queryEnd;
 	private char relativeStrand;
+	private String targetSequenceName;
 	private int targetStart; // on original strand
 	private int targetEnd; // on original strand
 	private int numberOfResidueMatches;
@@ -17,15 +19,25 @@ public class Edge {
 	private int queryExtension;
 	private int targetExtension;
 
-	public Edge(int queryStart, int queryEnd, char relativeStrand, int targetStart, int targetEnd,
-			int numberOfResidueMatches, int alignmentBlockLength) {
+	public Edge(String querySequenceName, int queryStart, int queryEnd, char relativeStrand, String targetSequenceName,
+			int targetStart, int targetEnd, int numberOfResidueMatches, int alignmentBlockLength) {
+		this.querySequenceName = querySequenceName;
 		this.queryStart = queryStart;
 		this.queryEnd = queryEnd;
 		this.relativeStrand = relativeStrand;
+		this.targetSequenceName = targetSequenceName;
 		this.targetStart = targetStart;
 		this.targetEnd = targetEnd;
 		this.numberOfResidueMatches = numberOfResidueMatches;
 		this.alignmentBlockLength = alignmentBlockLength;
+	}
+
+	public String getQuerySequenceName() {
+		return querySequenceName;
+	}
+
+	public void setQuerySequenceName(String querySequenceName) {
+		this.querySequenceName = querySequenceName;
 	}
 
 	public int getQueryStart() {
@@ -50,6 +62,14 @@ public class Edge {
 
 	public void setRelativeStrand(char relativeStrand) {
 		this.relativeStrand = relativeStrand;
+	}
+
+	public String getTargetSequenceName() {
+		return targetSequenceName;
+	}
+
+	public void setTargetSequenceName(String targetSequenceName) {
+		this.targetSequenceName = targetSequenceName;
 	}
 
 	public int getTargetStart() {
@@ -160,11 +180,13 @@ public class Edge {
 
 	@Override
 	public String toString() {
-		return "Edge [queryStart=" + queryStart + ", queryEnd=" + queryEnd + ", relativeStrand=" + relativeStrand
-				+ ", targetStart=" + targetStart + ", targetEnd=" + targetEnd + ", numberOfResidueMatches="
-				+ numberOfResidueMatches + ", alignmentBlockLength=" + alignmentBlockLength + ", queryOverhang="
-				+ queryOverhang + ", targetOverhang=" + targetOverhang + ", queryExtension=" + queryExtension
-				+ ", targetExtension=" + targetExtension + "]";
+		return "Edge [querySequenceName=" + querySequenceName + ", queryStart=" + queryStart + ", queryEnd=" + queryEnd
+				+ ", relativeStrand=" + relativeStrand + ", targetSequenceName=" + targetSequenceName + ", targetStart="
+				+ targetStart + ", targetEnd=" + targetEnd + ", numberOfResidueMatches=" + numberOfResidueMatches
+				+ ", alignmentBlockLength=" + alignmentBlockLength + ", queryOverhang=" + queryOverhang
+				+ ", targetOverhang=" + targetOverhang + ", queryExtension=" + queryExtension + ", targetExtension="
+				+ targetExtension + ", sequenceIdentity=" + sequenceIdentity + ", overlapScore=" + overlapScore
+				+ ", extensionScore=" + extensionScore + "]";
 	}
 
 	@Override
@@ -174,9 +196,11 @@ public class Edge {
 		result = prime * result + alignmentBlockLength;
 		result = prime * result + numberOfResidueMatches;
 		result = prime * result + queryEnd;
+		result = prime * result + ((querySequenceName == null) ? 0 : querySequenceName.hashCode());
 		result = prime * result + queryStart;
 		result = prime * result + relativeStrand;
 		result = prime * result + targetEnd;
+		result = prime * result + ((targetSequenceName == null) ? 0 : targetSequenceName.hashCode());
 		result = prime * result + targetStart;
 		return result;
 	}
@@ -196,11 +220,21 @@ public class Edge {
 			return false;
 		if (queryEnd != other.queryEnd)
 			return false;
+		if (querySequenceName == null) {
+			if (other.querySequenceName != null)
+				return false;
+		} else if (!querySequenceName.equals(other.querySequenceName))
+			return false;
 		if (queryStart != other.queryStart)
 			return false;
 		if (relativeStrand != other.relativeStrand)
 			return false;
 		if (targetEnd != other.targetEnd)
+			return false;
+		if (targetSequenceName == null) {
+			if (other.targetSequenceName != null)
+				return false;
+		} else if (!targetSequenceName.equals(other.targetSequenceName))
 			return false;
 		if (targetStart != other.targetStart)
 			return false;
