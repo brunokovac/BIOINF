@@ -48,22 +48,22 @@ public class Approach1 implements Traversal {
 	};
 
 	private List<Node> path = new ArrayList<>();
-	private static boolean deadEnd = false;
+	private boolean deadEnd = false;
 	private Set<String> visited = new HashSet<>();
 
 	private void DFS(Node node, boolean right, int step, boolean start) {
 		path.add(node);
-		visited.add(node.getName());
+		// visited.add(node.getName());
 
 		if (node.isAnchor() && step != 1) {
-			path.forEach(n -> System.err.print(n.getName() + " "));
 			paths.add(new ArrayList<>(path));
-			visited.remove(path.get(paths.size() - 1).getName());
+			visited.remove(path.get(path.size() - 1).getName());
 			path.remove(path.size() - 1);
 			return;
 		}
 
-		if (step == 1000) {
+		if (step == 700) {
+			deadEnd = true;
 			return;
 		}
 
@@ -75,7 +75,6 @@ public class Approach1 implements Traversal {
 			}
 		} else {
 			if (neighbours.isEmpty()) {
-				System.out.println("dead end");
 				deadEnd = true;
 			} else {
 				List<Edge> edges = new ArrayList<>(neighbours.keySet());
@@ -92,16 +91,22 @@ public class Approach1 implements Traversal {
 
 				for (int i = 0; i < edges.size(); i++) {
 					if (deadEnd || start) {
-						System.out.println(step + " " + i + " " + start + " " + deadEnd);
 						start = false;
 						deadEnd = false;
 						DFS(neighbours.get(edges.get(i)), right, step + 1, true);
 					}
 				}
 
+				visited.add(node.getName());
 				deadEnd = true;
 			}
 		}
+	}
+
+	private void reset() {
+		path.clear();
+		visited.clear();
+		deadEnd = false;
 	}
 
 	@Override
@@ -109,10 +114,9 @@ public class Approach1 implements Traversal {
 		for (Node node : graph.getNodes().values()) {
 			if (node.isAnchor()) {
 				DFS(node, true, 1, true);
-				// path.clear();
+				reset();
 				// DFS(node, false, 1, true);
-				// path.clear();
-				break;
+				// reset();
 			}
 		}
 

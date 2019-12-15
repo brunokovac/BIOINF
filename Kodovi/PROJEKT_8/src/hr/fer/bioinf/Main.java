@@ -1,8 +1,10 @@
 package hr.fer.bioinf;
 
 import java.io.IOException;
+import java.util.List;
 
 import hr.fer.bioinf.graph.Graph;
+import hr.fer.bioinf.graph.Node;
 import hr.fer.bioinf.traversal.Approach1;
 import hr.fer.bioinf.traversal.Traversal;
 
@@ -22,11 +24,10 @@ public class Main {
 		Graph graph = Graph.loadFromFiles(contigsPath, readsPath, contigsReadsOverlapsPath, contigsContigsOverlapsPath);
 
 		Traversal t = new Approach1();
-		System.out.println(t.findPaths(graph).size());
-//		for (List<Node> l : t.findPaths(graph)) {
-//			l.forEach(n -> System.err.print(n.getName() + " "));
-//			System.err.println();
-//		}
+		long t1 = System.currentTimeMillis();
+		List<List<Node>> paths = t.findPaths(graph);
+		System.out.println((System.currentTimeMillis() - t1) + "ms");
+		System.out.println(paths.size());
 	}
 
 }
