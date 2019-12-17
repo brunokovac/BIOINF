@@ -1,7 +1,6 @@
 package hr.fer.bioinf.traversal;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +12,8 @@ import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.graph.Node;
 
 public class Approach1 implements Traversal {
+
+	private static final int MAX_DEPTH = 200;
 
 	private List<List<Node>> paths = new ArrayList<>();
 
@@ -48,58 +49,64 @@ public class Approach1 implements Traversal {
 	};
 
 	private List<Node> path = new ArrayList<>();
-	private boolean deadEnd = false;
 	private Set<String> visited = new HashSet<>();
+	private boolean deadEnd = false;
 
-	private void DFS(Node node, boolean right, int step, boolean start) {
-		path.add(node);
-		// visited.add(node.getName());
-
-		if (node.isAnchor() && step != 1) {
+	private void DFS(Node node, boolean right, int step) {
+		if (node.isAnchor() && step > 0) {
+			path.add(node);
 			paths.add(new ArrayList<>(path));
-			visited.remove(path.get(path.size() - 1).getName());
-			path.remove(path.size() - 1);
+			path.remove(step);
 			return;
 		}
 
-		if (step == 700) {
+		visited.add(node.getName());
+
+		if (step == MAX_DEPTH - 1) {
 			deadEnd = true;
 			return;
 		}
 
 		Map<Edge, Node> neighbours = right ? node.getRightNeighbours() : node.getLeftNeighbours();
 
-		if (step == 1) {
-			for (Node neighbour : neighbours.values()) {
-				DFS(neighbour, right, step + 1, true);
+		if (neighbours.isEmpty()) {
+			deadEnd = true;
+			return;
+		}
+
+		path.add(node);
+		deadEnd = false;
+
+		if (step == 0) {
+			for (Map.Entry<Edge, Node> neighbour : neighbours.entrySet()) {
+				DFS(neighbour.getValue(), right, step + 1);
 			}
 		} else {
-			if (neighbours.isEmpty()) {
-				deadEnd = true;
-			} else {
-				List<Edge> edges = new ArrayList<>(neighbours.keySet());
-				edges.removeIf(e -> visited.contains(e.getTargetSequenceName()));
-				Collections.sort(edges, comparator);
 
-//				for (Edge edge : edges) {
-//					if (deadEnd || start) {
-//						start = false;
-//						deadEnd = false;
-//						DFS(neighbours.get(edge), right, step + 1, true);
-//					}
-//				}
-
-				for (int i = 0; i < edges.size(); i++) {
-					if (deadEnd || start) {
-						start = false;
-						deadEnd = false;
-						DFS(neighbours.get(edges.get(i)), right, step + 1, true);
-					}
+			List<Edge> possibleEdges = new ArrayList<>();
+			for (Map.Entry<Edge, Node> neighbour : neighbours.entrySet()) {
+				if (!visited.contains(neighbour.getValue().getName())) {
+					possibleEdges.add(neighbour.getKey());
 				}
-
-				visited.add(node.getName());
-				deadEnd = true;
 			}
+			possibleEdges.sort(comparator);
+
+			if (possibleEdges.isEmpty()) {
+				deadEnd = true;
+				path.remove(step);
+				return;
+			}
+
+			DFS(neighbours.get(possibleEdges.get(0)), right, step + 1);
+
+			for (int i = 1; i < possibleEdges.size(); i++) {
+				if (deadEnd) {
+					DFS(neighbours.get(possibleEdges.get(i)), right, step + 1);
+				}
+			}
+
+			path.remove(step);
+
 		}
 	}
 
@@ -113,10 +120,8 @@ public class Approach1 implements Traversal {
 	public List<List<Node>> findPaths(Graph graph) {
 		for (Node node : graph.getNodes().values()) {
 			if (node.isAnchor()) {
-				DFS(node, true, 1, true);
+				DFS(node, true, 0);
 				reset();
-				// DFS(node, false, 1, true);
-				// reset();
 			}
 		}
 

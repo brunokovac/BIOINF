@@ -28,6 +28,11 @@ public class Main {
 		List<List<Node>> paths = t.findPaths(graph);
 		System.out.println((System.currentTimeMillis() - t1) + "ms");
 		System.out.println(paths.size());
+		paths.forEach(p -> {
+			System.out.print(p.size() + " ");
+			p.forEach(n -> System.out.print(n.getName() + " "));
+			System.out.println();
+		});
 	}
 
 }
