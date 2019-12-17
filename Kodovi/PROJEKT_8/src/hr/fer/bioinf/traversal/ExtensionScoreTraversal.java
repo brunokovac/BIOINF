@@ -1,10 +1,11 @@
 package hr.fer.bioinf.traversal;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import hr.fer.bioinf.graph.Edge;
 import hr.fer.bioinf.graph.Graph;
@@ -28,21 +29,26 @@ public class ExtensionScoreTraversal implements Traversal {
 		}
 	};
 	
-	private void search(List<Node> path) {
-		int depth = path.size();
-		if (depth >= MAX_DEPTH) {
-			return;
+	private void search(List<Node> path, Set<Node> visited) {
+		Node node = path.get(path.size() - 1);
+		for (int depth = 0; depth < MAX_DEPTH; ++depth) {
+			Map<Edge, Node> rightNeighbours = node.getRightNeighbours();
+			Edge maxEdge = null;
+			Node maxNode = null;
+			for (Edge edge : rightNeighbours.keySet()) {
+				if (maxEdge == null || MAXIMUM_EXTENSION_SCORE_COMPARATOR.compare(edge, maxEdge) > 0) {
+					Node rightNeighbour = rightNeighbours.get(edge);
+					if (!visited.contains(rightNeighbour)) {
+						maxEdge = edge;
+						maxNode = rightNeighbour;
+					}
+				}
+			}
+			path.add(maxNode);
+			if (maxNode.isAnchor()) {
+				return;
+			}
 		}
-		
-		Node node = path.get(depth - 1);
-		Map<Edge, Node> rightNeighbours = node.getRightNeighbours();
-		Edge maxEdge = Collections.max(rightNeighbours.keySet(), MAXIMUM_EXTENSION_SCORE_COMPARATOR);
-		Node maxNode = rightNeighbours.get(maxEdge);
-		path.add(maxNode);
-		if (maxNode.isAnchor()) {
-			return;
-		}
-		search(path);
 	}
 	
 	@Override
@@ -57,9 +63,16 @@ public class ExtensionScoreTraversal implements Traversal {
 					path.add(node);
 					path.add(rightNeighbour);
 					if (!rightNeighbour.isAnchor()) {
-						search(path);
+						Set<Node> visited = new HashSet<>();
+						visited.add(node);
+						visited.add(rightNeighbour);
+						search(path, visited);
 					}
-					paths.add(path);
+					
+					// Add path if first and last element are anchors.
+					if (path.get(path.size()-1).isAnchor()) {
+						paths.add(path);						
+					}
 				}
 			}
 		}
