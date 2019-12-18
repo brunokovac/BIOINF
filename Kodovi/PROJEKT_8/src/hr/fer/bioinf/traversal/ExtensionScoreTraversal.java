@@ -34,8 +34,8 @@ public class ExtensionScoreTraversal implements Traversal {
 		}
 	};
 
-	private List<Node> search(Node node, Set<Edge> used) {
-		int depth = used.size();
+	private List<Node> search(Node node, Set<Node> visited) {
+		int depth = visited.size();
 		if (depth >= MAX_DEPTH) {
 			return null;
 		}
@@ -50,17 +50,17 @@ public class ExtensionScoreTraversal implements Traversal {
 		List<Edge> edges = new ArrayList<>(rightNeighbours.keySet());
 		edges.sort(MAXIMUM_EXTENSION_SCORE_COMPARATOR.reversed());
 		for (Edge edge : edges) {
-			if (used.contains(edge)) {
+			Node rightNeighbour = rightNeighbours.get(edge);
+			if (visited.contains(rightNeighbour)) {
 				continue;
 			}
-			Node otherNode = rightNeighbours.get(edge);
-			used.add(edge);
-			List<Node> searched = search(otherNode, used);
+			visited.add(rightNeighbour);
+			List<Node> searched = search(rightNeighbour, visited);
 			if (searched != null) {
 				searched.add(node);
 				return searched;
 			} else {
-				// used.remove(edge);				
+//				 visited.remove(rightNeighbour);				
 			}
 		}
 		return null;
@@ -73,15 +73,14 @@ public class ExtensionScoreTraversal implements Traversal {
 		List<List<Node>> paths = new ArrayList<>();
 		for (Node node : nodes.values()) {
 			if (node.isAnchor()) {
-//				System.out.println("anchor:" + node.getName());
 				Map<Edge, Node> rightNeighbours = node.getRightNeighbours();
 				for (Edge edge : rightNeighbours.keySet()) {
 					Node rightNeighbour = rightNeighbours.get(edge);
 					List<Node> path = null;
 					if (!rightNeighbour.isAnchor()) {
-						Set<Edge> used = new HashSet<>();
-						used.add(edge);
-//						System.out.println("\tadj:" + rightNeighbour.getName());
+						Set<Node> used = new HashSet<>();
+						used.add(node);
+						used.add(rightNeighbour);
 						path = search(rightNeighbour, used);
 					}
 
