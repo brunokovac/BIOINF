@@ -14,69 +14,85 @@ import hr.fer.bioinf.graph.Node;
 public class ExtensionScoreTraversal implements Traversal {
 
 	private static final int MAX_DEPTH = 700;
-	
+
 	private static final Comparator<Edge> MAXIMUM_EXTENSION_SCORE_COMPARATOR = new Comparator<Edge>() {
 		@Override
 		public int compare(Edge edge1, Edge edge2) {
 			double extensionScore1 = edge1.getExtensionScore();
 			double extensionScore2 = edge2.getExtensionScore();
-			if (extensionScore1 != extensionScore2) {
+			int extensionScoreComparison = Double.compare(extensionScore1, extensionScore2);
+			if (extensionScoreComparison != 0) {
 				return Double.compare(extensionScore1, extensionScore2);
 			}
+
 			double sequenceIdentity1 = edge1.getSequenceIdentity();
 			double sequenceIdentity2 = edge2.getSequenceIdentity();
-			return Double.compare(sequenceIdentity1, sequenceIdentity2);
+			int sequenceIdentityComparison = Double.compare(sequenceIdentity1, sequenceIdentity2);
+			// if (sequenceIdentityComparison) {
+			return sequenceIdentityComparison; // TODO add read length comparison
+			// }
 		}
 	};
-	
-	private void search(List<Node> path, Set<Node> visited) {
-		Node node = path.get(path.size() - 1);
-		for (int depth = 0; depth < MAX_DEPTH; ++depth) {
-			Map<Edge, Node> rightNeighbours = node.getRightNeighbours();
-			Edge maxEdge = null;
-			Node maxNode = null;
-			for (Edge edge : rightNeighbours.keySet()) {
-				if (maxEdge == null || MAXIMUM_EXTENSION_SCORE_COMPARATOR.compare(edge, maxEdge) > 0) {
-					Node rightNeighbour = rightNeighbours.get(edge);
-					if (!visited.contains(rightNeighbour)) {
-						maxEdge = edge;
-						maxNode = rightNeighbour;
-					}
-				}
+
+	private List<Node> search(Node node, Set<Edge> used) {
+		int depth = used.size();
+		if (depth >= MAX_DEPTH) {
+			return null;
+		}
+
+		if (node.isAnchor()) {
+			List<Node> retList = new ArrayList<>();
+			retList.add(node);
+			return retList;
+		}
+
+		Map<Edge, Node> rightNeighbours = node.getRightNeighbours();
+		List<Edge> edges = new ArrayList<>(rightNeighbours.keySet());
+		edges.sort(MAXIMUM_EXTENSION_SCORE_COMPARATOR.reversed());
+		for (Edge edge : edges) {
+			if (used.contains(edge)) {
+				continue;
 			}
-			path.add(maxNode);
-			if (maxNode.isAnchor()) {
-				return;
+			Node otherNode = rightNeighbours.get(edge);
+			used.add(edge);
+			List<Node> searched = search(otherNode, used);
+			if (searched != null) {
+				searched.add(node);
+				return searched;
+			} else {
+				// used.remove(edge);				
 			}
 		}
+		return null;
 	}
-	
+
 	@Override
 	public List<List<Node>> findPaths(Graph graph) {
 		Map<String, Node> nodes = graph.getNodes();
-		
+
 		List<List<Node>> paths = new ArrayList<>();
 		for (Node node : nodes.values()) {
 			if (node.isAnchor()) {
-				for (Node rightNeighbour : node.getRightNeighbours().values()) {
-					List<Node> path = new ArrayList<>();
-					path.add(node);
-					path.add(rightNeighbour);
+//				System.out.println("anchor:" + node.getName());
+				Map<Edge, Node> rightNeighbours = node.getRightNeighbours();
+				for (Edge edge : rightNeighbours.keySet()) {
+					Node rightNeighbour = rightNeighbours.get(edge);
+					List<Node> path = null;
 					if (!rightNeighbour.isAnchor()) {
-						Set<Node> visited = new HashSet<>();
-						visited.add(node);
-						visited.add(rightNeighbour);
-						search(path, visited);
+						Set<Edge> used = new HashSet<>();
+						used.add(edge);
+//						System.out.println("\tadj:" + rightNeighbour.getName());
+						path = search(rightNeighbour, used);
 					}
-					
-					// Add path if first and last element are anchors.
-					if (path.get(path.size()-1).isAnchor()) {
-						paths.add(path);						
+
+					if (path != null) {
+						path.add(node);
+						paths.add(path);
 					}
 				}
 			}
 		}
-		
+
 		return paths;
 	}
 
