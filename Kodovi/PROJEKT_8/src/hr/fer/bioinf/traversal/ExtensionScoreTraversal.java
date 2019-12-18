@@ -2,10 +2,9 @@ package hr.fer.bioinf.traversal;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import hr.fer.bioinf.graph.Edge;
 import hr.fer.bioinf.graph.Graph;
@@ -34,7 +33,17 @@ public class ExtensionScoreTraversal implements Traversal {
 		}
 	};
 
-	private List<Node> search(Node node, Set<Node> visited) {
+	/**
+	 * 
+	 * @param node
+	 *            current node
+	 * @param visited
+	 *            counts how many steps it took to get to a node; used for decision
+	 *            making
+	 * @return null if dead end reached, otherwise a list of following nodes with
+	 *         current node added
+	 */
+	private List<Node> search(Node node, Map<Node, Integer> visited) {
 		int depth = visited.size();
 		if (depth >= MAX_DEPTH) {
 			return null;
@@ -51,16 +60,14 @@ public class ExtensionScoreTraversal implements Traversal {
 		edges.sort(MAXIMUM_EXTENSION_SCORE_COMPARATOR.reversed());
 		for (Edge edge : edges) {
 			Node rightNeighbour = rightNeighbours.get(edge);
-			if (visited.contains(rightNeighbour)) {
+			if (visited.getOrDefault(rightNeighbour, 0) > depth) {
 				continue;
 			}
-			visited.add(rightNeighbour);
+			visited.put(rightNeighbour, depth);
 			List<Node> searched = search(rightNeighbour, visited);
 			if (searched != null) {
 				searched.add(node);
 				return searched;
-			} else {
-//				 visited.remove(rightNeighbour);				
 			}
 		}
 		return null;
@@ -78,10 +85,10 @@ public class ExtensionScoreTraversal implements Traversal {
 					Node rightNeighbour = rightNeighbours.get(edge);
 					List<Node> path = null;
 					if (!rightNeighbour.isAnchor()) {
-						Set<Node> used = new HashSet<>();
-						used.add(node);
-						used.add(rightNeighbour);
-						path = search(rightNeighbour, used);
+						Map<Node, Integer> visited = new HashMap<>();
+						visited.put(node, 0);
+						visited.put(rightNeighbour, 1);
+						path = search(rightNeighbour, visited);
 					}
 
 					if (path != null) {
