@@ -43,12 +43,16 @@ public class ExtensionScoreTraversal implements Traversal {
 	 * @return null if dead end reached, otherwise a list of following nodes with
 	 *         current node added
 	 */
-	private List<Node> search(Node node, Map<Node, Integer> visited) {
-		int depth = visited.size();
+	private List<Node> search(Node node, int depth, Map<Node, Integer> visited) {
 		if (depth >= MAX_DEPTH) {
 			return null;
 		}
 
+		if (depth >= visited.getOrDefault(node, Integer.MAX_VALUE)) {
+			return null;
+		}
+		visited.put(node, depth);
+		
 		if (node.isAnchor()) {
 			List<Node> retList = new ArrayList<>();
 			retList.add(node);
@@ -60,11 +64,11 @@ public class ExtensionScoreTraversal implements Traversal {
 		edges.sort(MAXIMUM_EXTENSION_SCORE_COMPARATOR.reversed());
 		for (Edge edge : edges) {
 			Node rightNeighbour = rightNeighbours.get(edge);
-			if (visited.getOrDefault(rightNeighbour, 0) > depth) {
-				continue;
-			}
-			visited.put(rightNeighbour, depth);
-			List<Node> searched = search(rightNeighbour, visited);
+//			if (depth >= visited.getOrDefault(rightNeighbour, Integer.MAX_VALUE)) {
+//				continue;
+//			}
+//			visited.put(rightNeighbour, depth+1);
+			List<Node> searched = search(rightNeighbour, depth+1, visited);
 			if (searched != null) {
 				searched.add(node);
 				return searched;
@@ -81,14 +85,13 @@ public class ExtensionScoreTraversal implements Traversal {
 		for (Node node : nodes.values()) {
 			if (node.isAnchor()) {
 				Map<Edge, Node> rightNeighbours = node.getRightNeighbours();
+				Map<Node, Integer> visited = new HashMap<>();
+				visited.put(node, 0);
 				for (Edge edge : rightNeighbours.keySet()) {
 					Node rightNeighbour = rightNeighbours.get(edge);
 					List<Node> path = null;
 					if (!rightNeighbour.isAnchor()) {
-						Map<Node, Integer> visited = new HashMap<>();
-						visited.put(node, 0);
-						visited.put(rightNeighbour, 1);
-						path = search(rightNeighbour, visited);
+						path = search(rightNeighbour, 1, visited);
 					}
 
 					if (path != null) {
