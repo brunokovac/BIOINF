@@ -1,7 +1,6 @@
 package hr.fer.bioinf.traversal;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,37 +17,6 @@ public class Approach3 implements Traversal {
 	private static final int MAX_DEPTH = 700;
 
 	private List<List<Node>> paths = new ArrayList<>();
-
-	private Comparator<Edge> comparator = new Comparator<Edge>() {
-
-		@Override
-		public int compare(Edge e1, Edge e2) {
-			double o1 = e1.getOverlapScore();
-			double o2 = e2.getOverlapScore();
-
-			if (o1 > o2) {
-				return -1;
-			}
-
-			if (o1 < o2) {
-				return 1;
-			}
-
-			// higher sequence identity or the longer read is selected
-			double si1 = e1.getSequenceIdentity();
-			double si2 = e2.getSequenceIdentity();
-
-			if (si1 > si2) {
-				return -1;
-			}
-
-			if (si1 < si2) {
-				return 1;
-			}
-
-			return 0;
-		}
-	};
 
 	private List<Node> path = new ArrayList<>();
 	private Set<String> visited = new HashSet<>();

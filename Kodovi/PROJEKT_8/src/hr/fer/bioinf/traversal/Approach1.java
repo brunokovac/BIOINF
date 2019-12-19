@@ -102,6 +102,8 @@ public class Approach1 implements Traversal {
 			for (int i = 1; i < possibleEdges.size(); i++) {
 				if (deadEnd) {
 					DFS(neighbours.get(possibleEdges.get(i)), right, step + 1);
+				} else {
+					break;
 				}
 			}
 
