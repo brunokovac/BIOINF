@@ -16,9 +16,10 @@ public class Approach3 implements Traversal {
 	private static final int NUM_TRIALS = 1000;
 	private static final int MAX_DEPTH = 700;
 
-	private List<List<Node>> paths = new ArrayList<>();
+	private List<TraversalPath> paths = new ArrayList<>();
 
 	private List<Node> path = new ArrayList<>();
+	private List<Edge> edges = new ArrayList<>();
 	private Set<String> visited = new HashSet<>();
 	private Random random = new Random();
 
@@ -32,7 +33,7 @@ public class Approach3 implements Traversal {
 				visited.add(currentNode.getName());
 
 				if (i > 0 && currentNode.isAnchor()) {
-					paths.add(new ArrayList<>(path));
+					paths.add(new TraversalPath(path, edges));
 					break;
 				}
 
@@ -60,6 +61,7 @@ public class Approach3 implements Traversal {
 					currentSum += e.getExtensionScore();
 					if (currentSum > value) {
 						currentNode = neighbours.get(e);
+						edges.add(e);
 						break;
 					}
 				}
@@ -69,11 +71,12 @@ public class Approach3 implements Traversal {
 
 	private void reset() {
 		path.clear();
+		edges.clear();
 		visited.clear();
 	}
 
 	@Override
-	public List<List<Node>> findPaths(Graph graph) {
+	public List<TraversalPath> findPaths(Graph graph) {
 		for (Node node : graph.getNodes().values()) {
 			if (node.isAnchor()) {
 				MonteCarlo(node, true);

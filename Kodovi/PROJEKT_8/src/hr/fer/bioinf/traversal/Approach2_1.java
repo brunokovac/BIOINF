@@ -11,9 +11,9 @@ import hr.fer.bioinf.graph.Edge;
 import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.graph.Node;
 
-public class Approach1 implements Traversal {
+public class Approach2_1 implements Traversal {
 
-	private static final int MAX_DEPTH = 200;
+	private static final int MAX_DEPTH = 500;
 
 	private List<TraversalPath> paths = new ArrayList<>();
 
@@ -21,8 +21,8 @@ public class Approach1 implements Traversal {
 
 		@Override
 		public int compare(Edge e1, Edge e2) {
-			double o1 = e1.getOverlapScore();
-			double o2 = e2.getOverlapScore();
+			double o1 = e1.getExtensionScore();
+			double o2 = e2.getExtensionScore();
 
 			if (o1 > o2) {
 				return -1;
@@ -83,44 +83,40 @@ public class Approach1 implements Traversal {
 		path.add(node);
 		deadEnd = false;
 
-		if (step == 0) {
-			for (Map.Entry<Edge, Node> neighbour : neighbours.entrySet()) {
-				edges.add(neighbour.getKey());
-				DFS(neighbour.getValue(), right, step + 1);
+		List<Edge> possibleEdges = new ArrayList<>();
+		for (Map.Entry<Edge, Node> neighbour : neighbours.entrySet()) {
+			if (!visited.contains(neighbour.getValue().getName())) {
+				possibleEdges.add(neighbour.getKey());
 			}
-		} else {
-
-			List<Edge> possibleEdges = new ArrayList<>();
-			for (Map.Entry<Edge, Node> neighbour : neighbours.entrySet()) {
-				if (!visited.contains(neighbour.getValue().getName())) {
-					possibleEdges.add(neighbour.getKey());
-				}
-			}
-			possibleEdges.sort(comparator);
-
-			if (possibleEdges.isEmpty()) {
-				deadEnd = true;
-				path.remove(step);
-				edges.remove(step - 1);
-				return;
-			}
-
-			edges.add(possibleEdges.get(0));
-			DFS(neighbours.get(possibleEdges.get(0)), right, step + 1);
-
-			for (int i = 1; i < possibleEdges.size(); i++) {
-				if (deadEnd) {
-					edges.add(possibleEdges.get(i));
-					DFS(neighbours.get(possibleEdges.get(i)), right, step + 1);
-				} else {
-					break;
-				}
-			}
-
-			path.remove(step);
-			edges.remove(step - 1);
-
 		}
+		possibleEdges.sort(comparator);
+
+		if (possibleEdges.isEmpty()) {
+			deadEnd = true;
+			path.remove(step);
+			if (!edges.isEmpty()) {
+				edges.remove(step - 1);
+			}
+			return;
+		}
+
+		edges.add(possibleEdges.get(0));
+		DFS(neighbours.get(possibleEdges.get(0)), right, step + 1);
+
+		for (int i = 1; i < possibleEdges.size(); i++) {
+			if (deadEnd) {
+				edges.add(possibleEdges.get(i));
+				DFS(neighbours.get(possibleEdges.get(i)), right, step + 1);
+			} else {
+				break;
+			}
+		}
+
+		path.remove(step);
+		if (!edges.isEmpty()) {
+			edges.remove(step - 1);
+		}
+
 	}
 
 	private void reset() {

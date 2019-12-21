@@ -11,9 +11,9 @@ import hr.fer.bioinf.graph.Edge;
 import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.graph.Node;
 
-public class Approach1 implements Traversal {
+public class Approach2 implements Traversal {
 
-	private static final int MAX_DEPTH = 200;
+	private static final int MAX_DEPTH = 250;
 
 	private List<TraversalPath> paths = new ArrayList<>();
 
@@ -21,8 +21,8 @@ public class Approach1 implements Traversal {
 
 		@Override
 		public int compare(Edge e1, Edge e2) {
-			double o1 = e1.getOverlapScore();
-			double o2 = e2.getOverlapScore();
+			double o1 = e1.getExtensionScore();
+			double o2 = e2.getExtensionScore();
 
 			if (o1 > o2) {
 				return -1;
