@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import hr.fer.bioinf.graph.Graph;
-import hr.fer.bioinf.traversal.Approach1;
+import hr.fer.bioinf.traversal.Approach2;
 import hr.fer.bioinf.traversal.Traversal;
 import hr.fer.bioinf.traversal.TraversalPath;
 
@@ -23,7 +23,7 @@ public class Main {
 
 		Graph graph = Graph.loadFromFiles(contigsPath, readsPath, contigsReadsOverlapsPath, contigsContigsOverlapsPath);
 
-		Traversal t = new Approach1();
+		Traversal t = new Approach2();
 		long t1 = System.currentTimeMillis();
 		List<TraversalPath> paths = t.findPaths(graph);
 		System.out.println((System.currentTimeMillis() - t1) + "ms");

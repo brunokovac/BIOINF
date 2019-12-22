@@ -81,6 +81,10 @@ public class Graph {
 			Edge edge = new Edge(querySequenceName, queryStart, queryEnd, relativeStrand, targetSequenceName,
 					targetStart, targetEnd, numberOfResidueMatches, alignmentBlockLength);
 
+			if (edge.getSequenceIdentity() < Edge.SEQUENCE_IDENTITY_CUTOFF) {
+				continue;
+			}
+
 			Node node = graph.nodes.get(querySequenceName);
 			node.setSequenceLength(querySequenceLength);
 

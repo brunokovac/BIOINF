@@ -2,7 +2,7 @@ package hr.fer.bioinf.graph;
 
 public class Edge {
 
-	public static final double SEQUENCE_IDENTITY_THRESHOLD = 0.8;
+	public static final double SEQUENCE_IDENTITY_CUTOFF = 0.7;
 
 	private String querySequenceName;
 	private int queryStart;
