@@ -1,14 +1,26 @@
 package hr.fer.bioinf;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.List;
 
+import hr.fer.bioinf.graph.Edge;
 import hr.fer.bioinf.graph.Graph;
+import hr.fer.bioinf.graph.Node;
 import hr.fer.bioinf.traversal.Approach2;
+import hr.fer.bioinf.traversal.CombinedTraversal;
 import hr.fer.bioinf.traversal.Traversal;
 import hr.fer.bioinf.traversal.TraversalPath;
 
 public class Main {
+
+	public static void debug(TraversalPath path) {
+		List<Node> nodes = path.getPath();
+		List<Edge> edges = path.getEdges();
+		for (int i = 0; i < edges.size(); ++i) {
+			System.out.println(nodes.get(i).getName() + "    -    " + edges.get(i));
+		}
+	}
 
 	public static void main(String[] args) throws IOException {
 //		String contigsPath = args[0];
@@ -23,16 +35,20 @@ public class Main {
 
 		Graph graph = Graph.loadFromFiles(contigsPath, readsPath, contigsReadsOverlapsPath, contigsContigsOverlapsPath);
 
-		Traversal t = new Approach2();
+		Traversal t = new CombinedTraversal();
 		long t1 = System.currentTimeMillis();
 		List<TraversalPath> paths = t.findPaths(graph);
 		System.out.println((System.currentTimeMillis() - t1) + "ms");
+
 		System.out.println(paths.size());
-		paths.forEach(p -> {
-			System.out.print(p.getPath().size() + " " + p.getEdges().size() + " ");
-			p.getPath().forEach(n -> System.out.print(n.getName() + " "));
-			System.out.println();
-		});
+
+		paths.sort(Comparator.comparingInt(TraversalPath::getEstimatedLength));
+
+		for (TraversalPath path : paths) {
+			System.out.println(path.getEstimatedLength() / 10000);
+		}
+
+		debug(paths.get(paths.size() - 1));
 	}
 
 }
