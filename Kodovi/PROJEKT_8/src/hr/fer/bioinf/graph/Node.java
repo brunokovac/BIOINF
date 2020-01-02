@@ -6,6 +6,7 @@ import java.util.Map;
 public class Node {
 
 	private String name;
+	private String data;
 	private boolean anchor;
 	private int sequenceLength;
 
@@ -14,8 +15,9 @@ public class Node {
 
 	private Node previousNode;
 
-	public Node(String name, boolean anchor) {
+	public Node(String name, String data, boolean anchor) {
 		this.name = name;
+		this.data = data;
 		this.anchor = anchor;
 		this.leftNeighbours = new HashMap<>();
 		this.rightNeighbours = new HashMap<>();
@@ -31,6 +33,10 @@ public class Node {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getData() {
+		return data;
 	}
 
 	public boolean isAnchor() {

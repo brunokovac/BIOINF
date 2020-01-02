@@ -9,11 +9,9 @@ import java.util.Map;
 
 public class Graph {
 
-	private Map<String, String> nodesData;
 	private Map<String, Node> nodes;
 
 	public Graph() {
-		this.nodesData = new HashMap<>();
 		this.nodes = new HashMap<>();
 	}
 
@@ -23,14 +21,6 @@ public class Graph {
 
 	public Map<String, Node> getNodes() {
 		return nodes;
-	}
-
-	public void addNodeData(String name, String data) {
-		this.nodesData.put(name, data);
-	}
-
-	public Map<String, String> getNodesData() {
-		return nodesData;
 	}
 
 	public static Graph loadFromFiles(String contigsPath, String readsPath, String contigsReadsOverlapsPath,
@@ -52,9 +42,8 @@ public class Graph {
 			String name = lines.get(i).trim().substring(1);
 			String data = lines.get(i + 1).trim();
 
-			Node node = new Node(name, anchor);
+			Node node = new Node(name, data, anchor);
 			graph.addNode(node);
-			graph.addNodeData(name, data);
 		}
 	}
 
