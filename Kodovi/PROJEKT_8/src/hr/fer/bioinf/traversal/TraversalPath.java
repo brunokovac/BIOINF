@@ -46,7 +46,7 @@ public class TraversalPath {
 			// dojaviti gresku?
 			int curr = Math.max(prev, edge.getQueryEnd());
 			length += curr - prev;
-			prev = edge.getTargetStart();
+			prev = edge.getTargetEnd();
 		}
 		return length + path.get(path.size() - 1).getSequenceLength() - prev;
 	}

@@ -8,7 +8,7 @@ import java.util.List;
 public class CombinedTraversal implements Traversal {
   public List<TraversalPath> findPaths(Graph graph) {
     List<TraversalPath> paths = new ArrayList<>();
-    Traversal[] approaches = {new Approach3()};
+    Traversal[] approaches = {new Approach1(), new Approach2(), new Approach3()};
     for (Traversal traversal : approaches) {
       paths.addAll(traversal.findPaths(graph));
     }
