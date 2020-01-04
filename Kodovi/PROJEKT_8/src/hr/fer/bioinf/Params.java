@@ -24,6 +24,20 @@ public class Params {
   )
   public static int MAX_DEPTH;
 
+  @Option(
+      name = "sequence-identity-cutoff",
+      description = "Sequence identity cutoff",
+      defaultValue = "0.97"
+  )
+  public static double SEQUENCE_IDENTITY_CUTOFF;
+
+  @Option(
+      name = "monte-carlo-iterations",
+      description = "Monte Carlo number of trials to generate path",
+      defaultValue = "1500"
+  )
+  public static int MONTE_CARLO_ITERATIONS;
+
   private static List<Field> paramFields() {
     List<Field> fields = new ArrayList<>();
     for (Field field : Params.class.getDeclaredFields()) {
@@ -60,7 +74,12 @@ public class Params {
       options.put(annotation.name(), field);
     }
 
+    boolean help = false;
     for (String arg : args) {
+      if (arg.equals("--help")) {
+        help = true;
+        continue;
+      }
       int equalSignPos = arg.indexOf('=');
       if (!arg.startsWith("--") || equalSignPos < 0 || equalSignPos >= arg.length()) {
         System.err.println("Please run ./executable --help.");
@@ -74,6 +93,23 @@ public class Params {
         System.exit(1);
       }
       setValue(options.get(key), value);
+    }
+
+    if (help) {
+      printOptions();
+      System.exit(0);
+    }
+  }
+
+  public static void printOptions() {
+    System.out.println("Implementation of the HERA algorithm.");
+    System.out.println("This project is a part of bioinformatics course at FER.");
+    for (Field field : paramFields()) {
+      Option annotation = field.getAnnotation(Option.class);
+      System.out.println();
+      System.out.println(annotation.name());
+      System.out.println("    default: " + annotation.defaultValue());
+      System.out.println("    " + annotation.description());
     }
   }
 }

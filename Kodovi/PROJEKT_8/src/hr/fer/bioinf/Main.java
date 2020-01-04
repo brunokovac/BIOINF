@@ -24,7 +24,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 		Params.init(args);
-		
+
 //		String contigsPath = args[0];
 //		String readsPath = args[1];
 //		String contigsReadsOverlapsPath = args[2];

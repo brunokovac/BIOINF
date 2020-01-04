@@ -1,5 +1,7 @@
 package hr.fer.bioinf.graph;
 
+import hr.fer.bioinf.Params;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -70,7 +72,7 @@ public class Graph {
 			Edge edge = new Edge(querySequenceName, queryStart, queryEnd, relativeStrand, targetSequenceName,
 					targetStart, targetEnd, numberOfResidueMatches, alignmentBlockLength);
 
-			if (edge.getSequenceIdentity() < Edge.SEQUENCE_IDENTITY_CUTOFF) {
+			if (edge.getSequenceIdentity() < Params.SEQUENCE_IDENTITY_CUTOFF) {
 				continue;
 			}
 
