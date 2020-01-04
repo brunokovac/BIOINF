@@ -13,7 +13,7 @@ import hr.fer.bioinf.graph.Node;
 
 public class Approach1 implements Traversal {
 
-	private static final int MAX_DEPTH = 400;
+	private static final int MAX_DEPTH = 600;
 
 	private List<TraversalPath> paths = new ArrayList<>();
 

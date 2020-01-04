@@ -1,15 +1,13 @@
 package hr.fer.bioinf;
 
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.*;
 
 import hr.fer.bioinf.graph.Edge;
 import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.graph.Node;
-import hr.fer.bioinf.traversal.Approach2;
-import hr.fer.bioinf.traversal.CombinedTraversal;
-import hr.fer.bioinf.traversal.Traversal;
-import hr.fer.bioinf.traversal.TraversalPath;
+import hr.fer.bioinf.traversal.*;
 
 import javax.swing.event.TreeExpansionEvent;
 
@@ -19,9 +17,9 @@ public class Main {
 		List<Node> nodes = path.getPath();
 		List<Edge> edges = path.getEdges();
 		for (int i = 0; i < edges.size(); ++i) {
-			System.out.println(nodes.get(i).getName() + "    -    " + edges.get(i));
+			System.err.println(nodes.get(i).getName() + "    -    " + edges.get(i));
 		}
-		System.out.println(nodes.get(nodes.size() - 1).getName());
+		System.err.println(nodes.get(nodes.size() - 1).getName());
 	}
 
 	public static void main(String[] args) throws IOException {
@@ -40,9 +38,9 @@ public class Main {
 		Traversal t = new CombinedTraversal();
 		long t1 = System.currentTimeMillis();
 		List<TraversalPath> paths = t.findPaths(graph);
-		System.out.println((System.currentTimeMillis() - t1) + "ms");
+		System.err.println((System.currentTimeMillis() - t1) + "ms");
 
-		System.out.println(paths.size());
+		System.err.println(paths.size());
 
 		paths.sort(Comparator.comparingInt(TraversalPath::getEstimatedLength));
 
@@ -56,11 +54,42 @@ public class Main {
 			mapa.get(path.id()).add(path);
 		}
 
+		Map<String, Consensus> consensusMap = new HashMap<>();
+
 		for (Map.Entry<String, List<TraversalPath>> ppp : mapa.entrySet()) {
-			System.out.println();
+			System.err.println();
+			List<Node> nodes = ppp.getValue().get(0).getPath();
+			Node start = nodes.get(0);
+			Node end = nodes.get(nodes.size() - 1);
+			Consensus consensus = new Consensus(start, end, ppp.getValue());
 			for (TraversalPath path : ppp.getValue()) {
-				System.out.println(ppp.getKey() + " " + path.getEstimatedLength());
+				System.err.println(ppp.getKey() + "  " + path.getEstimatedLength() +
+						"  (" + String.format("%.6f", path.checkSomething()) + ")    (nodes: " +
+						path.getPath().size() + ")");
 			}
+			consensusMap.put(ppp.getKey(), consensus);
+			System.err.println(ppp.getKey() + "  " + consensus.calculatePath());
+		}
+
+		TraversalPath output = TraversalPath.merge(consensusMap.get("ctg1_ctg2").calculatePath(),
+				consensusMap.get("ctg2_ctg3").calculatePath());
+		System.err.println(output.getEstimatedLength());
+
+		System.out.println(">output");
+		System.out.println(output.getSequence());
+
+		System.err.println(output.checkSomething());
+
+
+		System.err.println();
+		System.err.println();
+
+		for (int i = 0; i < output.getEdges().size(); ++i) {
+			Edge edge = output.getEdges().get(i);
+			System.err.printf("%s   (query: %d %d)   (target: %d %d)   (OH: %d %d)  (names: %s %s) %s%n",
+					output.getPath().get(i).getName(), edge.getQueryStart(), edge.getQueryEnd(), edge.getTargetStart(), edge.getTargetEnd(),
+					edge.getQueryOverhang(), edge.getTargetOverhang(), edge.getRelativeStrand(),
+					edge.getQuerySequenceName(), edge.getTargetSequenceName());
 		}
 	}
 
