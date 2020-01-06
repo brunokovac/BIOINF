@@ -9,54 +9,22 @@ import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.graph.Node;
 
 public class Approach3 implements Traversal {
-  private class EdgeEntry {
-    Edge edge;
-    Node neighbor;
-    double accumulativeProbability;
-
-    EdgeEntry(Edge edge, Node neighbor) {
-      this.edge = edge;
-      this.neighbor = neighbor;
-      this.accumulativeProbability = 0.0;
-    }
-  }
-
   private Random random = new Random();
-  private Map<String, List<EdgeEntry>> edgeMap;
 
-  private void preprocessGraph(Graph graph) {
-    edgeMap = new HashMap<>();
-    for (Node node : graph.getNodes()) {
-      List<EdgeEntry> edges = node.getEdges().stream()
-          .map(edge -> new EdgeEntry(edge, edge.to().node()))
-          .collect(Collectors.toList());
-      double extensionScoreSum = 0;
-      for (EdgeEntry entry : edges) {
-        extensionScoreSum += entry.edge.getExtensionScore();
-      }
-      double accumulativeProbability = 0;
-      for (EdgeEntry entry : edges) {
-        accumulativeProbability += entry.edge.getSequenceIdentity() / extensionScoreSum;
-        entry.accumulativeProbability = accumulativeProbability;
-      }
-      edgeMap.put(node.getID(), edges);
-    }
-  }
-
-  private EdgeEntry selectRandomEdge(Node node, Set<String> visited) {
-    List<EdgeEntry> possibleEdges = edgeMap.get(node.getID()).stream()
-        .filter(entry -> !visited.contains(entry.neighbor.getID()))
+  private Edge selectRandomEdge(Node node, Set<String> visited) {
+    List<Edge> possibleEdges = node.getEdges().stream()
+        .filter(edge -> !visited.contains(edge.to().node().getID()))
         .collect(Collectors.toList());
     double extensionScoreSum = 0;
-    for (EdgeEntry entry : possibleEdges) {
-      extensionScoreSum += entry.edge.getExtensionScore();
+    for (Edge edge : possibleEdges) {
+      extensionScoreSum += edge.getExtensionScore();
     }
     double p = random.nextDouble() * extensionScoreSum;
     double c = 0;
-    for (EdgeEntry entry : possibleEdges) {
-      c += entry.edge.getExtensionScore();
+    for (Edge edge : possibleEdges) {
+      c += edge.getExtensionScore();
       if (c >= p) {
-        return entry;
+        return edge;
       }
     }
     return null;
@@ -68,12 +36,12 @@ public class Approach3 implements Traversal {
     Node currentNode = startNode;
     for (int i = 0; i < Params.MAX_DEPTH; ++i) {
       visited.add(currentNode.getID());
-      EdgeEntry entry = selectRandomEdge(currentNode, visited);
-      if (entry == null) {
+      Edge edge = selectRandomEdge(currentNode, visited);
+      if (edge == null) {
         return null;
       }
-      edges.add(entry.edge);
-      currentNode = entry.neighbor;
+      edges.add(edge);
+      currentNode = edge.to().node();
       if (currentNode.isAnchor()) {
         return new TraversalPath(edges);
       }
@@ -83,10 +51,9 @@ public class Approach3 implements Traversal {
 
   @Override
   public List<TraversalPath> findPaths(Graph graph) {
-    preprocessGraph(graph);
-
     List<TraversalPath> paths = new ArrayList<>();
     for (Node node : graph.getNodes()) {
+
       if (!node.isAnchor()) {
         continue;
       }

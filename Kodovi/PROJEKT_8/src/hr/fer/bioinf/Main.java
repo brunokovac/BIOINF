@@ -1,7 +1,6 @@
 package hr.fer.bioinf;
 
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.util.*;
 
 import hr.fer.bioinf.graph.Edge;
@@ -9,8 +8,6 @@ import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.graph.Node;
 import hr.fer.bioinf.traversal.*;
 import hr.fer.bioinf.utils.Clock;
-
-import javax.swing.event.TreeExpansionEvent;
 
 public class Main {
 
@@ -31,8 +28,6 @@ public class Main {
     System.err.printf("[INFO] Found %d paths between anchoring nodes.  [%dms]%n",
         paths.size(), clock.elapsedTime());
 
-
-
     paths = removeDuplicates(paths);
     paths.sort(Comparator.comparingInt(TraversalPath::getEstimatedLength));
 
@@ -46,7 +41,7 @@ public class Main {
       }
     }
 
-    debugPath(paths.get(0));
+    debugPath(paths.get(500));
   }
 
   private static Map<String, List<TraversalPath>> splitByID(List<TraversalPath> paths) {

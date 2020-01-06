@@ -27,14 +27,14 @@ public class Params {
   @Option(
       name = "sequence-identity-cutoff",
       description = "Sequence identity cutoff",
-      defaultValue = "0.997"
+      defaultValue = "0.7"
   )
   public static double SEQUENCE_IDENTITY_CUTOFF;
 
   @Option(
       name = "monte-carlo-iterations",
       description = "Monte Carlo number of trials to generate path",
-      defaultValue = "500"
+      defaultValue = "15000"
   )
   public static int MONTE_CARLO_ITERATIONS;
 

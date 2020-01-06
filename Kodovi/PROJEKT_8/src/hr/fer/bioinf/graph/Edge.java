@@ -17,6 +17,7 @@ public class Edge {
 
 			if (end - start + overhang + extension != node.length()) {
 				System.err.println("[ERROR]: Edge.NodeData::ctor() segments don't sum up.");
+				System.err.printf("          (%d %d)  O: %d  E: %d,  %d%n", start,end,overhang,extension, node.length());
 				System.exit(1);
 			}
 		}
