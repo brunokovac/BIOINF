@@ -5,28 +5,73 @@ import hr.fer.bioinf.Params;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Graph {
+	public static class NodeDualPair {
+		private Node original;
+		private Node reversed;
 
-	private Map<String, Node> nodes;
+		NodeDualPair(String id, String data, boolean anchor) {
+			original = new Node(id, data, false, anchor);
+			reversed = new Node(id, new StringBuilder(data).reverse().toString(), true, anchor);
+		}
 
-	public Graph() {
-		this.nodes = new HashMap<>();
+		public Node original() {
+			return original;
+		}
+
+		public Node reversed() {
+			return reversed;
+		}
 	}
 
-	public void addNode(Node node) {
-		this.nodes.put(node.getName(), node);
+	private Map<String, NodeDualPair> nodes;
+	private List<Edge> edges;
+	private List<Node> allNodes;
+
+	Graph() {
+		nodes = new HashMap<>();
+		edges = new ArrayList<>();
+		allNodes = new ArrayList<>();
 	}
 
-	public Map<String, Node> getNodes() {
-		return nodes;
+	private void addNode(NodeDualPair nodeDualPair) {
+		// assert nodeDualPair.original.id == nodeDualPair.reversed.id
+		nodes.put(nodeDualPair.original().getID(), nodeDualPair);
+		allNodes.add(nodeDualPair.original());
+		allNodes.add(nodeDualPair.reversed());
 	}
 
-	public static Graph loadFromFiles(String contigsPath, String readsPath, String contigsReadsOverlapsPath,
-			String contigsContigsOverlapsPath) throws IOException {
+	public NodeDualPair getNodePair(String id) {
+		return nodes.get(id);
+	}
+
+	public Collection<Node> getNodes() {
+		return this.allNodes;
+	}
+
+	public Node getNode(String id, boolean reversed) {
+		NodeDualPair nodeDualPair = nodes.get(id);
+		if (nodeDualPair == null) return null;
+		if (reversed) return nodeDualPair.reversed();
+		return nodeDualPair.original();
+	}
+
+	private void addEdge(Edge edge) {
+		if (edge.getSequenceIdentity() < Params.SEQUENCE_IDENTITY_CUTOFF)
+			return;
+		edge.from().node.addEdge(edge);
+		edges.add(edge);
+	}
+
+	public List<Edge> getEdges() {
+		return edges;
+	}
+
+	public static Graph loadFromFiles(String contigsPath, String readsPath,
+																		String contigsReadsOverlapsPath,
+																		String contigsContigsOverlapsPath) throws IOException {
 		Graph graph = new Graph();
 
 		parseFastaFile(contigsPath, graph, true);
@@ -43,9 +88,7 @@ public class Graph {
 		for (int i = 0, size = lines.size(); i < size; i += 2) {
 			String name = lines.get(i).trim().substring(1);
 			String data = lines.get(i + 1).trim();
-
-			Node node = new Node(name, data, anchor);
-			graph.addNode(node);
+			graph.addNode(new NodeDualPair(name, data, anchor));
 		}
 	}
 
@@ -69,41 +112,30 @@ public class Graph {
 				continue;
 			}
 
-			Edge edge = new Edge(querySequenceName, queryStart, queryEnd, relativeStrand, targetSequenceName,
-					targetStart, targetEnd, numberOfResidueMatches, alignmentBlockLength);
+			NodeDualPair queryNodePair = graph.getNodePair(querySequenceName);
+			NodeDualPair targetNodePair = graph.getNodePair(targetSequenceName);
 
-			if (edge.getSequenceIdentity() < Params.SEQUENCE_IDENTITY_CUTOFF) {
-				continue;
+			// >>qqqq[qq]q
+			//      t[tt]tttttt>>
+			if (relativeStrand == '+' && queryStart > targetStart &&
+					(querySequenceLength - queryEnd) < (targetSequenceLength - targetEnd)) {
+				Edge.NodeData from = new Edge.NodeData(queryNodePair.original(), queryStart, queryEnd,
+						querySequenceLength - queryEnd, queryStart);
+				Edge.NodeData to = new Edge.NodeData(targetNodePair.original, targetStart, targetEnd,
+						targetStart, targetSequenceLength - targetEnd);
+				graph.addEdge(new Edge(from, to, numberOfResidueMatches, alignmentBlockLength));
 			}
 
-			Node node = graph.nodes.get(querySequenceName);
-			node.setSequenceLength(querySequenceLength);
-
-			Node neighbour = graph.nodes.get(targetSequenceName);
-			neighbour.setSequenceLength(targetSequenceLength);
-
-			if (queryStart > targetStart && (querySequenceLength - queryEnd) < (targetSequenceLength - targetEnd)) {
-				edge.setQueryOverhang(querySequenceLength - queryEnd);
-				edge.setTargetOverhang(targetStart);
-				edge.setQueryExtension(queryStart);
-				edge.setTargetExtension(targetSequenceLength - targetEnd);
-
-				node.addRightNeighbour(edge, neighbour);
-				neighbour.addLeftNeighbour(edge, node);
-				continue;
-			}
-
-			if (queryStart < targetStart && (querySequenceLength - queryEnd) > (targetSequenceLength - targetEnd)) {
-				edge.setQueryOverhang(queryStart);
-				edge.setTargetOverhang(targetSequenceLength - targetEnd);
-				edge.setQueryExtension(querySequenceLength - queryEnd);
-				edge.setTargetExtension(targetStart);
-
-				node.addLeftNeighbour(edge, neighbour);
-				neighbour.addRightNeighbour(edge, node);
-				continue;
+			//     q[qqq]qqqqq>>
+			// >>ttt[ttt]t
+			if (relativeStrand == '+' && queryStart < targetStart &&
+					(querySequenceLength - queryEnd) > (targetSequenceLength - targetEnd)) {
+				Edge.NodeData from = new Edge.NodeData(targetNodePair.original(), targetStart, targetEnd,
+						targetSequenceLength - targetEnd, targetStart);
+				Edge.NodeData to = new Edge.NodeData(queryNodePair.original(), queryStart, queryEnd,
+						queryStart, querySequenceLength - queryEnd);
+				graph.addEdge(new Edge(from, to, numberOfResidueMatches, alignmentBlockLength));
 			}
 		}
 	}
-
 }

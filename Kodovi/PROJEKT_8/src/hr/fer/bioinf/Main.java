@@ -8,91 +8,75 @@ import hr.fer.bioinf.graph.Edge;
 import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.graph.Node;
 import hr.fer.bioinf.traversal.*;
+import hr.fer.bioinf.utils.Clock;
 
 import javax.swing.event.TreeExpansionEvent;
 
 public class Main {
 
-	public static void debug(TraversalPath path) {
-		List<Node> nodes = path.getPath();
-		List<Edge> edges = path.getEdges();
-		for (int i = 0; i < edges.size(); ++i) {
-			System.err.println(nodes.get(i).getName() + "    -    " + edges.get(i));
-		}
-		System.err.println(nodes.get(nodes.size() - 1).getName());
-	}
+  public static void main(String[] args) throws IOException {
+    Params.init(args);
+    Clock clock = new Clock();
 
-	public static void main(String[] args) throws IOException {
-		Params.init(args);
+    // Build a graph
+    clock.restart();
+    Graph graph = Graph.loadFromFiles(Params.CONTIGS_PATH, Params.READS_PATH,
+        Params.CONTIGS_READS_OVERLAPS_PATH, Params.READS_OVERLAPS_PATH);
+    System.err.printf("[INFO] Graph successfully built (%d nodes, %d edges).  [%dms]%n",
+        graph.getNodes().size(), graph.getEdges().size(), clock.elapsedTime());
 
-//		String contigsPath = args[0];
-//		String readsPath = args[1];
-//		String contigsReadsOverlapsPath = args[2];
-//		String contigsContigsOverlapsPath = args[3];
-
-		String contigsPath = "ecoli_test_contigs.fasta";
-		String readsPath = "ecoli_test_reads.fasta";
-		String contigsReadsOverlapsPath = "reads_contigs_overlaps.paf";
-		String contigsContigsOverlapsPath = "reads_reads_overlaps.paf";
-
-		Graph graph = Graph.loadFromFiles(contigsPath, readsPath, contigsReadsOverlapsPath, contigsContigsOverlapsPath);
-
-		Traversal t = new CombinedTraversal();
-		long t1 = System.currentTimeMillis();
-		List<TraversalPath> paths = t.findPaths(graph);
-		System.err.println((System.currentTimeMillis() - t1) + "ms");
-
-		System.err.println(paths.size());
-
-		paths.sort(Comparator.comparingInt(TraversalPath::getEstimatedLength));
-
-		Map<String, List<TraversalPath>> mapa = new TreeMap<>();
+    // Find paths between anchoring nodes
+    clock.restart();
+    List<TraversalPath> paths = new CombinedTraversal().findPaths(graph);
+    System.err.printf("[INFO] Found %d paths between anchoring nodes.  [%dms]%n",
+        paths.size(), clock.elapsedTime());
 
 
-		for (TraversalPath path : paths) {
-			if (!mapa.containsKey(path.id())) {
-				mapa.put(path.id(), new ArrayList<>());
-			}
-			mapa.get(path.id()).add(path);
-		}
 
-		Map<String, Consensus> consensusMap = new HashMap<>();
+    paths = removeDuplicates(paths);
+    paths.sort(Comparator.comparingInt(TraversalPath::getEstimatedLength));
 
-		for (Map.Entry<String, List<TraversalPath>> ppp : mapa.entrySet()) {
-			System.err.println();
-			List<Node> nodes = ppp.getValue().get(0).getPath();
-			Node start = nodes.get(0);
-			Node end = nodes.get(nodes.size() - 1);
-			Consensus consensus = new Consensus(start, end, ppp.getValue());
-			for (TraversalPath path : ppp.getValue()) {
-				System.err.println(ppp.getKey() + "  " + path.getEstimatedLength() +
-						"  (" + String.format("%.6f", path.checkSomething()) + ")    (nodes: " +
-						path.getPath().size() + ")");
-			}
-			consensusMap.put(ppp.getKey(), consensus);
-			System.err.println(ppp.getKey() + "  " + consensus.calculatePath());
-		}
+    Map<String, List<TraversalPath>> pathsMapping = splitByID(paths);
 
-		TraversalPath output = TraversalPath.merge(consensusMap.get("ctg1_ctg2").calculatePath(),
-				consensusMap.get("ctg2_ctg3").calculatePath());
-		System.err.println(output.getEstimatedLength());
+    for (Map.Entry<String, List<TraversalPath>> ps : pathsMapping.entrySet()) {
+      System.err.println();
+      System.err.println("------ " + ps.getKey() + " ------- (" + ps.getValue().size() + ")");
+      for (TraversalPath p : ps.getValue()) {
+        System.err.println(p.id() + " " + p.getEstimatedLength() + " " + p.getEdges().size());
+      }
+    }
 
-		System.out.println(">output");
-		System.out.println(output.getSequence());
+    debugPath(paths.get(0));
+  }
 
-		System.err.println(output.checkSomething());
+  private static Map<String, List<TraversalPath>> splitByID(List<TraversalPath> paths) {
+    Map<String, List<TraversalPath>> pathsMapping = new HashMap<>();
+    for (TraversalPath path : paths) {
+      if (!pathsMapping.containsKey(path.id())) {
+        pathsMapping.put(path.id(), new ArrayList<>());
+      }
+      pathsMapping.get(path.id()).add(path);
+    }
+    return pathsMapping;
+  }
 
+  private static List<TraversalPath> removeDuplicates(List<TraversalPath> paths) {
+    Set<Integer> hashes = new HashSet<>();
+    List<TraversalPath> ret = new ArrayList<>();
+    for (TraversalPath path : paths) {
+      if (hashes.contains(path.hashCode())) continue;
+      hashes.add(path.hashCode());
+      ret.add(path);
+    }
+    return ret;
+  }
 
-		System.err.println();
-		System.err.println();
-
-		for (int i = 0; i < output.getEdges().size(); ++i) {
-			Edge edge = output.getEdges().get(i);
-			System.err.printf("%s   (query: %d %d)   (target: %d %d)   (OH: %d %d)  (names: %s %s) %s%n",
-					output.getPath().get(i).getName(), edge.getQueryStart(), edge.getQueryEnd(), edge.getTargetStart(), edge.getTargetEnd(),
-					edge.getQueryOverhang(), edge.getTargetOverhang(), edge.getRelativeStrand(),
-					edge.getQuerySequenceName(), edge.getTargetSequenceName());
-		}
-	}
-
+  private static void debugPath(TraversalPath path) {
+    for (Edge edge : path.getEdges()) {
+      System.err.printf("[%9s => %9s] -- (from: %d %d) => (to: %d %d)  [OH: %d %d] [EX: %d %d]%n",
+          edge.from().node().getID(), edge.to().node().getID(), edge.from().start(),
+          edge.from().end(), edge.to().start(), edge.to().end(), edge.from().overhang(),
+          edge.to().overhang(), edge.from().extension(), edge.to().extension());
+    }
+  }
 }

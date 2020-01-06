@@ -1,119 +1,52 @@
 package hr.fer.bioinf.graph;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Node {
-
-	private String name;
+	private String id;
 	private String data;
+	private boolean reversed;
 	private boolean anchor;
-	private int sequenceLength;
 
-	private Map<Edge, Node> leftNeighbours;
-	private Map<Edge, Node> rightNeighbours;
+	private List<Edge> edges;
 
-	private Node previousNode;
-
-	public Node(String name, String data, boolean anchor) {
-		this.name = name;
+	Node(String id, String data, boolean reversed, boolean anchor) {
+		this.id = id;
 		this.data = data;
+		this.reversed = reversed;
 		this.anchor = anchor;
-		this.leftNeighbours = new HashMap<>();
-		this.rightNeighbours = new HashMap<>();
+		this.edges = new ArrayList<>();
 	}
 
-	public void addLeftNeighbour(Edge edge, Node node) {
-		this.leftNeighbours.put(edge, node);
-	}
-
-	public void addRightNeighbour(Edge edge, Node node) {
-		this.rightNeighbours.put(edge, node);
-	}
-
-	public String getName() {
-		return name;
+	public String getID() {
+		return id;
 	}
 
 	public String getData() {
 		return data;
 	}
 
+	public boolean isReversed() {
+		return reversed;
+	}
+
 	public boolean isAnchor() {
 		return anchor;
 	}
 
-	public int getSequenceLength() {
-		return sequenceLength;
+	public int length() {
+		return data.length();
 	}
 
-	public void setSequenceLength(int sequenceLength) {
-		this.sequenceLength = sequenceLength;
-	}
-
-	public Map<Edge, Node> getLeftNeighbours() {
-		return leftNeighbours;
-	}
-
-	public Map<Edge, Node> getRightNeighbours() {
-		return rightNeighbours;
-	}
-
-	public Node getPreviousNode() {
-		return previousNode;
-	}
-
-	public void setPreviousNode(Node previousNode) {
-		this.previousNode = previousNode;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(String.format("name=%s, anchor=%s, length=%d%n", name, anchor, sequenceLength));
-
-		sb.append(String.format("Left:%n"));
-		for (Map.Entry<Edge, Node> neighbour : leftNeighbours.entrySet()) {
-			sb.append(String.format("%s %s%n", neighbour.getValue().getName(), neighbour.getKey()));
+	public void addEdge(Edge edge) {
+		if (edge.from().node != this) {
+			System.err.println("[ERROR] Node::addEdge() received unexpected starting node.");
 		}
-
-		sb.append(String.format("%nRight:%n"));
-		for (Map.Entry<Edge, Node> neighbour : rightNeighbours.entrySet()) {
-			sb.append(String.format("%s %s\n", neighbour.getValue().getName(), neighbour.getKey()));
-		}
-
-		return sb.toString();
+		edges.add(edge);
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (anchor ? 1231 : 1237);
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + sequenceLength;
-		return result;
+	public List<Edge> getEdges() {
+		return edges;
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Node other = (Node) obj;
-		if (anchor != other.anchor)
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (sequenceLength != other.sequenceLength)
-			return false;
-		return true;
-	}
-
 }

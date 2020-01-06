@@ -41,9 +41,6 @@ public class Consensus {
         best = window;
     }
     if (best.size() > 5) {
-      for (TraversalPath path : best)
-        if (path.checkSomething() < 0.001)
-          return path;
       return best.get(0);
     }
     return null;

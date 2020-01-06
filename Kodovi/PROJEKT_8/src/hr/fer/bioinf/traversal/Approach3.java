@@ -26,9 +26,9 @@ public class Approach3 implements Traversal {
 
   private void preprocessGraph(Graph graph) {
     edgeMap = new HashMap<>();
-    for (Node node : graph.getNodes().values()) {
-      List<EdgeEntry> edges = node.getRightNeighbours().entrySet().stream()
-          .map(entry -> new EdgeEntry(entry.getKey(), entry.getValue()))
+    for (Node node : graph.getNodes()) {
+      List<EdgeEntry> edges = node.getEdges().stream()
+          .map(edge -> new EdgeEntry(edge, edge.to().node()))
           .collect(Collectors.toList());
       double extensionScoreSum = 0;
       for (EdgeEntry entry : edges) {
@@ -39,13 +39,13 @@ public class Approach3 implements Traversal {
         accumulativeProbability += entry.edge.getSequenceIdentity() / extensionScoreSum;
         entry.accumulativeProbability = accumulativeProbability;
       }
-      edgeMap.put(node.getName(), edges);
+      edgeMap.put(node.getID(), edges);
     }
   }
 
   private EdgeEntry selectRandomEdge(Node node, Set<String> visited) {
-    List<EdgeEntry> possibleEdges = edgeMap.get(node.getName()).stream()
-        .filter(entry -> !visited.contains(entry.neighbor.getName()))
+    List<EdgeEntry> possibleEdges = edgeMap.get(node.getID()).stream()
+        .filter(entry -> !visited.contains(entry.neighbor.getID()))
         .collect(Collectors.toList());
     double extensionScoreSum = 0;
     for (EdgeEntry entry : possibleEdges) {
@@ -64,21 +64,18 @@ public class Approach3 implements Traversal {
 
   private TraversalPath randomPath(Node startNode) {
     Set<String> visited = new HashSet<>();
-    List<Node> nodes = new ArrayList<>();
     List<Edge> edges = new ArrayList<>();
-    nodes.add(startNode);
     Node currentNode = startNode;
     for (int i = 0; i < Params.MAX_DEPTH; ++i) {
-      visited.add(currentNode.getName());
+      visited.add(currentNode.getID());
       EdgeEntry entry = selectRandomEdge(currentNode, visited);
       if (entry == null) {
         return null;
       }
       edges.add(entry.edge);
-      nodes.add(entry.neighbor);
       currentNode = entry.neighbor;
       if (currentNode.isAnchor()) {
-        return new TraversalPath(nodes, edges);
+        return new TraversalPath(edges);
       }
     }
     return null;
@@ -89,7 +86,7 @@ public class Approach3 implements Traversal {
     preprocessGraph(graph);
 
     List<TraversalPath> paths = new ArrayList<>();
-    for (Node node : graph.getNodes().values()) {
+    for (Node node : graph.getNodes()) {
       if (!node.isAnchor()) {
         continue;
       }
