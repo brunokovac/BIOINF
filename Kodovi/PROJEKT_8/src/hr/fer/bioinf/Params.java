@@ -13,64 +13,55 @@ public class Params {
   @Target(ElementType.FIELD)
   private @interface Option {
     String name();
+
     String description();
+
     String defaultValue();
   }
 
   @Option(
       name = "max-depth",
       description = "Max depth of DFS algorithm for path construction between two anchoring nodes",
-      defaultValue = "500"
-  )
+      defaultValue = "500")
   public static int MAX_DEPTH;
 
   @Option(
       name = "sequence-identity-cutoff",
       description = "Sequence identity cutoff",
-      defaultValue = "0.7"
-  )
+      defaultValue = "0.997")
   public static double SEQUENCE_IDENTITY_CUTOFF;
 
   @Option(
       name = "monte-carlo-iterations",
       description = "Monte Carlo number of trials to generate path",
-      defaultValue = "15000"
-  )
+      defaultValue = "500")
   public static int MONTE_CARLO_ITERATIONS;
 
   @Option(
       name = "consensus-window-size",
       description = "Consensus window size in bytes",
-      defaultValue = "2000"
-  )
+      defaultValue = "2000")
   public static int CONSENSUS_WINDOW_SIZE;
 
   @Option(
       name = "contigs-path",
       description = "Contigs path",
-      defaultValue = "ecoli_test_contigs.fasta"
-  )
+      defaultValue = "ecoli_test_contigs.fasta")
   public static String CONTIGS_PATH;
 
-  @Option(
-      name = "reads-path",
-      description = "Reads path",
-      defaultValue = "ecoli_test_reads.fasta"
-  )
+  @Option(name = "reads-path", description = "Reads path", defaultValue = "ecoli_test_reads.fasta")
   public static String READS_PATH;
 
   @Option(
       name = "contigs-reads-overlaps-path",
       description = "Contigs-reads overlaps path",
-      defaultValue = "reads_contigs_overlaps.paf"
-  )
+      defaultValue = "reads_contigs_overlaps.paf")
   public static String CONTIGS_READS_OVERLAPS_PATH;
 
   @Option(
       name = "reads-overlaps-path",
       description = "Reads-reads overlaps path",
-      defaultValue = "reads_reads_overlaps.paf"
-  )
+      defaultValue = "reads_reads_overlaps.paf")
   public static String READS_OVERLAPS_PATH;
 
   private static List<Field> paramFields() {

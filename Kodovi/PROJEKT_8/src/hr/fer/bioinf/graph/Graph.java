@@ -73,8 +73,10 @@ public class Graph {
   }
 
   private void addEdge(Edge edge) {
-    if (edge.getSequenceIdentity() < Params.SEQUENCE_IDENTITY_CUTOFF)
+    if (edge.getSequenceIdentity() < Params.SEQUENCE_IDENTITY_CUTOFF
+        || edge.getExtensionScore() < 0) {
       return;
+    }
     edge.from().node.addEdge(edge);
     edges.add(edge);
   }
@@ -83,9 +85,12 @@ public class Graph {
     return edges;
   }
 
-  public static Graph loadFromFiles(String contigsPath, String readsPath,
-                                    String contigsReadsOverlapsPath,
-                                    String contigsContigsOverlapsPath) throws IOException {
+  public static Graph loadFromFiles(
+      String contigsPath,
+      String readsPath,
+      String contigsReadsOverlapsPath,
+      String contigsContigsOverlapsPath)
+      throws IOException {
     Graph graph = new Graph();
 
     parseFastaFile(contigsPath, graph, true);
@@ -136,49 +141,64 @@ public class Graph {
       NodeDualPair targetNodePair = graph.getNodePair(targetSequenceName);
 
       HalfEdge[] queryHalves = {
-          new HalfEdge(queryNodePair.original(), queryStart, queryEnd, querySequenceLength),
-          new HalfEdge(queryNodePair.reversed(), queryStartInv, queryEndInv, querySequenceLength)};
+        new HalfEdge(queryNodePair.original(), queryStart, queryEnd, querySequenceLength),
+        new HalfEdge(queryNodePair.reversed(), queryStartInv, queryEndInv, querySequenceLength)
+      };
 
       HalfEdge[] targetHalves = {
-          new HalfEdge(targetNodePair.original(), targetStart, targetEnd, targetSequenceLength),
-          new HalfEdge(targetNodePair.reversed(), targetStartInv, targetEndInv,
-              targetSequenceLength)};
+        new HalfEdge(targetNodePair.original(), targetStart, targetEnd, targetSequenceLength),
+        new HalfEdge(targetNodePair.reversed(), targetStartInv, targetEndInv, targetSequenceLength)
+      };
 
       for (HalfEdge query : queryHalves) {
         for (HalfEdge target : targetHalves) {
           char strand = (query.node.isReversed() == target.node.isReversed() ? '+' : '-');
           if (strand == relativeStrand) {
-            mergeHalves(graph, query, target, strand,
-                numberOfResidueMatches, alignmentBlockLength);
+            mergeHalves(graph, query, target, numberOfResidueMatches, alignmentBlockLength);
           }
         }
       }
     }
   }
 
-  private static void mergeHalves(Graph graph, HalfEdge query, HalfEdge target, char strand,
-                                  int numberOfResidueMatches, int alignmentBlockLength) {
+  private static void mergeHalves(
+      Graph graph,
+      HalfEdge query,
+      HalfEdge target,
+      int numberOfResidueMatches,
+      int alignmentBlockLength) {
     // >>qqqq[qq]q
     //      t[tt]tttttt>>
-    if (query.start > target.start &&
-        (query.sequenceLength - query.end) < (target.sequenceLength - target.end)) {
-      Edge.NodeData from = new Edge.NodeData(query.node, query.start, query.end,
-          query.sequenceLength - query.end, query.start);
-      Edge.NodeData to = new Edge.NodeData(target.node, target.start, target.end,
-          target.start, target.sequenceLength - target.end);
+    if (query.start > target.start
+        && (query.sequenceLength - query.end) < (target.sequenceLength - target.end)) {
+      Edge.NodeData from =
+          new Edge.NodeData(
+              query.node, query.start, query.end, query.sequenceLength - query.end, query.start);
+      Edge.NodeData to =
+          new Edge.NodeData(
+              target.node,
+              target.start,
+              target.end,
+              target.start,
+              target.sequenceLength - target.end);
       graph.addEdge(new Edge(from, to, numberOfResidueMatches, alignmentBlockLength));
     }
 
     //     q[qqq]qqqqq>>
     // >>ttt[ttt]t
-    if (query.start < target.start &&
-        (query.sequenceLength - query.end) > (target.sequenceLength - target.end)) {
-      Edge.NodeData from = new Edge.NodeData(target.node, target.start, target.end,
-          target.sequenceLength - target.end, target.start);
-      Edge.NodeData to = new Edge.NodeData(query.node, query.start, query.end,
-          query.start, query.sequenceLength - query.end);
+    if (query.start < target.start
+        && (query.sequenceLength - query.end) > (target.sequenceLength - target.end)) {
+      Edge.NodeData from =
+          new Edge.NodeData(
+              target.node,
+              target.start,
+              target.end,
+              target.sequenceLength - target.end,
+              target.start);
+      Edge.NodeData to =
+          new Edge.NodeData(
+              query.node, query.start, query.end, query.start, query.sequenceLength - query.end);
       graph.addEdge(new Edge(from, to, numberOfResidueMatches, alignmentBlockLength));
-
     }
   }
 }

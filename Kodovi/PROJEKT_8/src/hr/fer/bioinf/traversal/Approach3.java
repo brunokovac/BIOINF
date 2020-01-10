@@ -12,9 +12,10 @@ public class Approach3 implements Traversal {
   private Random random = new Random();
 
   private Edge selectRandomEdge(Node node, Set<String> visited) {
-    List<Edge> possibleEdges = node.getEdges().stream()
-        .filter(edge -> !visited.contains(edge.to().node().getID()))
-        .collect(Collectors.toList());
+    List<Edge> possibleEdges =
+        node.getEdges().stream()
+            .filter(edge -> !visited.contains(edge.to().node().getID()))
+            .collect(Collectors.toList());
     double extensionScoreSum = 0;
     for (Edge edge : possibleEdges) {
       extensionScoreSum += edge.getExtensionScore();

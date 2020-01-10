@@ -1,7 +1,6 @@
 package hr.fer.bioinf.traversal;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import hr.fer.bioinf.graph.Edge;
@@ -9,81 +8,75 @@ import hr.fer.bioinf.graph.Node;
 import hr.fer.bioinf.utils.Hasher;
 
 public class TraversalPath {
-	private List<Edge> edges;
+  private List<Edge> edges;
 
+  public TraversalPath(List<Edge> edges) {
+    this.edges = new ArrayList<>(edges);
+  }
 
-	public TraversalPath(List<Edge> edges) {
-		this.edges = new ArrayList<>(edges);
-	}
+  public List<Edge> getEdges() {
+    return edges;
+  }
 
-	public List<Edge> getEdges() {
-		return edges;
-	}
+  public TraversalPath concat(TraversalPath path) {
+    List<Edge> combinedEdges = new ArrayList<>(edges);
+    combinedEdges.addAll(path.edges);
+    return new TraversalPath(combinedEdges);
+  }
 
-	/*
-	public static TraversalPath merge(TraversalPath t1, TraversalPath t2) {
-		if (!t1.getPath().get(t1.getPath().size() - 1).equals(t2.getPath().get(0)))
-			return null;
-		List<Node> nodes = new ArrayList<>(t1.path);
-		List<Edge> edges = new ArrayList<>(t1.edges);
-		for (int i = 0; i < t2.edges.size(); ++i) {
-			nodes.add(t2.path.get(i + 1));
-			edges.add(t2.edges.get(i));
-		}
-		return new TraversalPath(nodes, edges);
-	}*/
+  public String id() {
+    Node first = edges.get(0).from().node();
+    Node last = edges.get(edges.size() - 1).to().node();
+    int firstReversed = first.isReversed() ? 1 : 0;
+    int lastReversed = last.isReversed() ? 1 : 0;
+    return String.format("%s[%d]_%s[%d]", first.getID(), firstReversed, last.getID(), lastReversed);
+  }
 
-	public String id() {
-		Edge first = edges.get(0);
-		Edge last = edges.get(edges.size() - 1);
-		return first.from().node().getID() + "_" + last.to().node().getID();
-	}
+  public int getEstimatedLength() {
+    int length = 0;
+    int prev = 0;
 
-	public int getEstimatedLength() {
-		int length = 0;
-		int prev = 0;
+    for (Edge edge : edges) {
+      length += edge.from().end() - prev;
+      prev = edge.to().end();
+    }
 
-		for (Edge edge : edges) {
-			length += edge.from().end() - prev;
-			prev = edge.to().end();
-		}
+    return length + edges.get(edges.size() - 1).to().node().length() - prev;
+  }
 
-		return length + edges.get(edges.size() - 1).to().node().length() - prev;
-	}
+  public String getSequence() {
+    StringBuilder builder = new StringBuilder();
+    int prev = 0;
+    for (Edge edge : edges) {
+      int curr = Math.max(prev, edge.from().end());
+      builder.append(edge.from().node().getData(), prev, curr);
+      prev = edge.to().end();
+    }
+    builder.append(edges.get(edges.size() - 1).to().node().getData().substring(prev));
+    return builder.toString();
+  }
 
-	/*
-	public double checkSomething() {
-		int prev = 0;
-		int count = 0;
-		for (Edge edge : edges) {
-			if (edge.getQueryEnd() < prev) count++;
-			prev = edge.getTargetEnd();
-		}
-		return (double)count / path.size();
-	}
-	*/
+  @Override
+  public int hashCode() {
+    Hasher hasher = new Hasher();
+    for (Edge edge : edges) {
+      hasher.feed(edge.from().node().getID());
+      hasher.feed(edge.from().node().isReversed());
+      hasher.feed(edge.to().node().getID());
+      hasher.feed(edge.to().node().isReversed());
+    }
+    return hasher.hashCode();
+  }
 
-	public String getSequence() {
-		StringBuilder builder = new StringBuilder();
-		int prev = 0;
-		for (Edge edge : edges) {
-			int curr = Math.max(prev, edge.from().end());
-			builder.append(edge.from().node().getData(), prev, curr);  // removed substr
-			prev = edge.to().end();
-		}
-		builder.append(edges.get(edges.size() - 1).to().node().getData().substring(prev));
-		return builder.toString();
-	}
-
-	@Override
-	public int hashCode() {
-		Hasher hasher = new Hasher();
-		for (Edge edge : edges) {
-			hasher.feed(edge.from().node().getID());
-			hasher.feed(edge.from().node().isReversed());
-			hasher.feed(edge.to().node().getID());
-			hasher.feed(edge.to().node().isReversed());
-		}
-		return hasher.hashCode();
-	}
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) return true;
+    if (!(other instanceof TraversalPath)) return false;
+    TraversalPath path = (TraversalPath) other;
+    if (edges.size() != path.edges.size()) return false;
+    for (int i = 0; i < edges.size(); ++i) {
+      if (edges.get(i) != path.edges.get(i)) return false;
+    }
+    return true;
+  }
 }

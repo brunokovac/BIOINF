@@ -75,7 +75,7 @@ public class Edge {
     int toOverlap = to.end - to.start;
     sequenceIdentity = (double)numberOfResidueMatches / Math.max(fromOverlap, toOverlap);
     overlapScore = (fromOverlap + toOverlap) * sequenceIdentity / 2;
-    extensionScore = overlapScore + to.extension / 2.0 - (fromOverlap + toOverlap) / 2.0;
+    extensionScore = overlapScore + to.extension / 2.0 - (from.overhang + to.overhang) / 2.0;
   }
 
   public double getSequenceIdentity() {
