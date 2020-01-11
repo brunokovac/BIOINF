@@ -56,7 +56,6 @@ public class ExtensionScoreTraversal implements Traversal {
 		used.add(node);
 
 		if (node.isAnchor()) {
-			System.out.println("\t\tFound anchor: " + node.getName() + " at depth " + depth);
 			List<Node> retList = new ArrayList<>();
 			retList.add(node);
 			return retList;
