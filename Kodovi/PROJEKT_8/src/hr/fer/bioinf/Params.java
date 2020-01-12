@@ -28,7 +28,7 @@ public class Params {
   @Option(
       name = "sequence-identity-cutoff",
       description = "Sequence identity cutoff",
-      defaultValue = "0.997")
+      defaultValue = "0.97")
   public static double SEQUENCE_IDENTITY_CUTOFF;
 
   @Option(
@@ -46,23 +46,32 @@ public class Params {
   @Option(
       name = "contigs-path",
       description = "Contigs path",
-      defaultValue = "ecoli_test_contigs.fasta")
+      defaultValue = "data/ecoli_test_contigs.fasta")
   public static String CONTIGS_PATH;
 
-  @Option(name = "reads-path", description = "Reads path", defaultValue = "ecoli_test_reads.fasta")
+  @Option(
+      name = "reads-path",
+      description = "Reads path",
+      defaultValue = "data/ecoli_test_reads.fasta")
   public static String READS_PATH;
 
   @Option(
       name = "contigs-reads-overlaps-path",
       description = "Contigs-reads overlaps path",
-      defaultValue = "reads_contigs_overlaps.paf")
+      defaultValue = "data/ecoli_test_contigs_overlaps.paf")
   public static String CONTIGS_READS_OVERLAPS_PATH;
 
   @Option(
       name = "reads-overlaps-path",
       description = "Reads-reads overlaps path",
-      defaultValue = "reads_reads_overlaps.paf")
+      defaultValue = "data/ecoli_test_reads_overlaps.paf")
   public static String READS_OVERLAPS_PATH;
+
+  @Option(
+      name = "exclude-contigs",
+      description = "set of excluded contigs",
+      defaultValue = "")
+  public static Set<String> EXCLUDED_CONTIGS;
 
   private static List<Field> paramFields() {
     List<Field> fields = new ArrayList<>();
@@ -84,6 +93,12 @@ public class Params {
         field.set(null, value);
       } else if (field.getType().equals(double.class)) {
         field.set(null, Double.parseDouble(value));
+      } else if (field.getType().equals(Set.class)) {
+        if (value.isEmpty()) {
+          field.set(null, new HashSet<>());
+        } else {
+          field.set(null, new HashSet<>(Arrays.asList(value.split(","))));
+        }
       }
     } catch (Exception e) {
       // TODO: ljepsa porukica

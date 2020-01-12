@@ -49,4 +49,19 @@ public class Node {
   public List<Edge> getEdges() {
     return edges;
   }
+
+  @Override
+  public int hashCode() {
+    int ret = id.hashCode() * 2;
+    if (reversed) ret++;
+    return ret;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (other == this) return true;
+    if (!(other instanceof Node)) return false;
+    Node node = (Node) other;
+    return id.equals(node.id) && reversed == node.reversed;
+  }
 }

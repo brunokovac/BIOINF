@@ -14,7 +14,17 @@ public class Graph {
 
     NodeDualPair(String id, String data, boolean anchor) {
       original = new Node(id, data, false, anchor);
-      reversed = new Node(id, new StringBuilder(data).reverse().toString(), true, anchor);
+      StringBuilder reversedDataBuilder = new StringBuilder();
+      for (int i = data.length() - 1; i >= 0; --i) {
+        char c = data.charAt(i);
+        char append = '?';
+        if (c == 'A') append = 'T';
+        if (c == 'C') append = 'G';
+        if (c == 'G') append = 'C';
+        if (c == 'T') append = 'A';
+        reversedDataBuilder.append(append);
+      }
+      reversed = new Node(id, reversedDataBuilder.toString(), true, anchor);
     }
 
     public Node original() {
@@ -106,6 +116,9 @@ public class Graph {
     List<String> lines = Files.readAllLines(Paths.get(path));
     for (int i = 0, size = lines.size(); i < size; i += 2) {
       String name = lines.get(i).trim().substring(1);
+      if (Params.EXCLUDED_CONTIGS.contains(name)) {
+        continue;
+      }
       String data = lines.get(i + 1).trim();
       graph.addNode(new NodeDualPair(name, data, anchor));
     }
@@ -126,6 +139,11 @@ public class Graph {
       int targetEnd = Integer.parseInt(data[8]); // on original strand
       int numberOfResidueMatches = Integer.parseInt(data[9]);
       int alignmentBlockLength = Integer.parseInt(data[10]);
+
+      if (Params.EXCLUDED_CONTIGS.contains(querySequenceName)
+          || Params.EXCLUDED_CONTIGS.contains(targetSequenceName)) {
+        continue;
+      }
 
       // za dualnost:
       int queryStartInv = querySequenceLength - queryEnd;

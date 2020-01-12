@@ -25,11 +25,35 @@ public class TraversalPath {
   }
 
   public String id() {
-    Node first = edges.get(0).from().node();
+    StringBuilder builder = new StringBuilder();
+    for (Edge edge : edges) {
+      Node node = edge.from().node();
+      if (node.isAnchor()) {
+        builder.append(node.getID());
+        if (node.isReversed()) {
+          builder.append("[-]");
+        } else {
+          builder.append("[+]");
+        }
+        builder.append(',');
+      }
+    }
     Node last = edges.get(edges.size() - 1).to().node();
-    int firstReversed = first.isReversed() ? 1 : 0;
-    int lastReversed = last.isReversed() ? 1 : 0;
-    return String.format("%s[%d]_%s[%d]", first.getID(), firstReversed, last.getID(), lastReversed);
+    builder.append(last.getID());
+    if (last.isReversed()) {
+      builder.append("[-]");
+    } else {
+      builder.append("[+]");
+    }
+    return builder.toString();
+  }
+
+  public Node from() {
+    return edges.get(0).from().node();
+  }
+
+  public Node to() {
+    return edges.get(edges.size() - 1).to().node();
   }
 
   public int getEstimatedLength() {
