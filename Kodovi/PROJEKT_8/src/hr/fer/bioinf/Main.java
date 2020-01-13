@@ -17,6 +17,8 @@ import hr.fer.bioinf.utils.Clock;
 public class Main {
 
   public static void main(String[] args) throws IOException {
+    System.out.println(ProcessHandle.current().pid());
+
     Params.init(args);
     Clock clock = new Clock();
 
@@ -47,72 +49,29 @@ public class Main {
 
     Map<String, List<TraversalPath>> pathsMapping = splitByID(paths);
 
-    /*
-    TraversalPath path12 = get(pathsMapping, "ctg0001[1]_ctg0002[0]");
-    TraversalPath path23 = get(pathsMapping, "ctg0002[0]_ctg0003[1]");
-    System.out.println(">output");
-    System.out.println(path12.concat(path23).getSequence());
-     */
-
-    /*
-    System.out.println(">output");
-    TraversalPath p = get(pathsMapping, "ctg00001[0]_ctg00006[1]");
-    System.out.println(p.getSequence());
-    debugPath(p);*/
-
-    /*
-    List<TraversalPath> ppp = pathsMapping.get("ctg00003[0]_ctg00002[1]");
-    for (int i = 0; i < ppp.size(); ++i) {
-      if (i != 0) System.out.print(" ");
-      System.out.print(ppp.get(i).getEstimatedLength());
-    }
-    System.out.println();
-    */
-
-    /*
-        System.out.println(">lol1");
-        System.out.println(p.getEdges().get(0).from().node().getData());
-        System.out.println(">lol2");
-        System.out.println(p.getEdges().get(p.getEdges().size() - 1).to().node().getData());
-    */
-    /*
-    for (Map.Entry<String, List<TraversalPath>> ps : pathsMapping.entrySet()) {
-      System.err.println();
-      System.err.println("------ " + ps.getKey() + " ------- (" + ps.getValue().size() + ")");
-      for (TraversalPath p : ps.getValue()) {
-        System.err.println(p.id() + " " + p.getEstimatedLength() + " " + p.getEdges().size());
-      }
-    }
-    */
-
     List<Consensus> consensuses =
-        pathsMapping.values().stream().map(ConsensusBuilder::build).collect(Collectors.toList());
-    consensuses.sort(Comparator.comparingInt(Consensus::getValidIndex));
+        pathsMapping.values().stream()
+            .map(ConsensusBuilder::build)
+            .sorted(Comparator.comparingInt(Consensus::getValidIndex))
+            .collect(Collectors.toList());
 
     for (Consensus consensus : consensuses) {
       System.err.println(consensus.getPath().id() + " --> " + consensus.getValidIndex());
     }
-
     System.err.println();
 
-    String prefix = "data/out/";
     List<TraversalPath> results = new SequenceBuilder(graph).build(consensuses);
-    for (TraversalPath result : results) {
-      System.err.println(result.id());
-      debugPath(result);
-      System.err.println();
-    }
-    for (int i = 0; i < results.size(); ++i) {
-      TraversalPath path = results.get(i);
-      BufferedWriter writer = new BufferedWriter(new FileWriter(prefix + path.id() + ".fasta"));
+    for (TraversalPath path : results) {
+      BufferedWriter writer =
+          new BufferedWriter(new FileWriter(Params.OUTPUT_FOLDER + path.id() + ".fasta"));
       writer.write(String.format(">%s%n", path.id()));
       writer.write(String.format("%s%n", path.getSequence()));
       writer.close();
-    }
-  }
 
-  private static TraversalPath get(Map<String, List<TraversalPath>> paths, String id) {
-    return paths.get(id).get(paths.get(id).size() / 3);
+      System.err.println(path.id());
+      debugPath(path);
+      System.err.println();
+    }
   }
 
   private static Map<String, List<TraversalPath>> splitByID(List<TraversalPath> paths) {

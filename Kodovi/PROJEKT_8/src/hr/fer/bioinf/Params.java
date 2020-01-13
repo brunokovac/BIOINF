@@ -40,7 +40,7 @@ public class Params {
   @Option(
       name = "consensus-window-size",
       description = "Consensus window size in bytes",
-      defaultValue = "2000")
+      defaultValue = "50")
   public static int CONSENSUS_WINDOW_SIZE;
 
   @Option(
@@ -72,6 +72,12 @@ public class Params {
       description = "set of excluded contigs",
       defaultValue = "")
   public static Set<String> EXCLUDED_CONTIGS;
+
+  @Option(
+      name = "output-folder",
+      description = "Output folder",
+      defaultValue = "data/out/")
+  public static String OUTPUT_FOLDER;
 
   private static List<Field> paramFields() {
     List<Field> fields = new ArrayList<>();
@@ -128,7 +134,7 @@ public class Params {
       }
       String key = arg.substring(2, equalSignPos);
       String value = arg.substring(equalSignPos + 1);
-      if (!options.keySet().contains(key)) {
+      if (!options.containsKey(key)) {
         System.err.println("Unknown argument `" + key + "`.");
         System.err.println("Please run ./executable --help.");
         System.exit(1);

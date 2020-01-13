@@ -2,9 +2,6 @@ package hr.fer.bioinf.consensus;
 
 import hr.fer.bioinf.traversal.TraversalPath;
 
-import java.util.Comparator;
-import java.util.List;
-
 public class Consensus {
   private TraversalPath path;
   private int validIndex;

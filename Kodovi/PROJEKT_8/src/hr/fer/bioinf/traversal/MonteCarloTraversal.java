@@ -8,7 +8,7 @@ import hr.fer.bioinf.graph.Edge;
 import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.graph.Node;
 
-public class Approach3 implements Traversal {
+public class MonteCarloTraversal implements Traversal {
   private Random random = new Random();
 
   private Edge selectRandomEdge(Node node, Set<String> visited) {
