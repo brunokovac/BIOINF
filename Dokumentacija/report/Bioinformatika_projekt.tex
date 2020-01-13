@@ -38,7 +38,7 @@ Sekvenciranje genoma svodi se na kombiniranje očitanja u jednu cjelinu. Ovaj ra
 
 
 \chapter{Postupak}
-Sastavljanje očitanja u niz apstrahirano je izgradnjom i obilaskom grafa.
+Sastavljanje očitanja u niz modelirano je izgradnjom i obilaskom grafa.
 \section{Izgradnja grafa}
 Svaki \textit{contig} i svako očitanje čine jedan čvor grafa. Čvor koji predstavlja \textit{contig} zovemo \textit{anchor}. Brid postoji između svaka dva čvora čiji je $SI$ veći od nekog minimuma (u radu je uzeta vrijednost $0.97$). Pritom svaki brid nosi informacije o preklopljenosti čvorova koje povezuje ($SI$, $OS$, $ES$). Te mjere računaju se na temelju informacija o preklopljenosti dobivenih korištenjem alata \textit{minimap2} opisanog u \cite{minimap2}.
 
@@ -51,8 +51,8 @@ Svaki \textit{contig} i svako očitanje čine jedan čvor grafa. Čvor koji pred
 	\label{fig:traversal}
 \end{figure}
 
-
-Kroz graf se traže putovi čije su krajnje točke \textit{anchor} čvorovi. Za to se koriste tri načina obilaska. Pritom se obiđeni čvorovi pamte i postavlja se maksimalna dubina do koje se pretražuje.
+\noindent
+Kroz graf se traže putovi čije su krajnje točke \textit{anchor} čvorovi. Za to se koriste tri načina obilaska, prilikom kojih je postavljena maksimalna dubina pretraživanja i pamte se obiđeni čvorovi:
 \begin{enumerate}
 	\item Iz \textit{anchor} čvora pretraga se nastavlja u sve susjedne čvorove. Iz svakog sljedećeg čvora, pretraga se nastavlja u onaj susjed s kojim je najveći \textit{overlap score}, a kojim se u konačnici dolazi do \textit{anchor} čvora. Ako je \textit{overlap score} jednak, gleda se \textit{sequence identity}. Ako je pak i ta mjera jednaka, gleda se duljina očitanja.
 	\item Kao i prethodni način, ali umjesto mjere \textit{overlap score} gleda se \textit{extension score}.
@@ -60,12 +60,13 @@ Kroz graf se traže putovi čije su krajnje točke \textit{anchor} čvorovi. Za 
 \end{enumerate}
 
 \section{Obrada putova}
+Nakon agregacije putova dobivenih trima (?) opisanim postupcima, odbacuju se duplikati i radi se odabir jednog puta za svaki par \textit{anchor} čvorova....
+Conflict index?
 
 
 \section{Primjer (?)}
 % vizualizacijski primjer
-slika
-opis
+jel dovoljno ilustrirati svaki korak, ili provođenje cijelog algoritma treba ilustrirat baš na zasebnom primjeru?
 
 \chapter{Rezultati}
 Implementacija je ispitana na uzorcima ..., ... i ... na jednoj dretvi uz procesorsku moć od ... GHz.
@@ -89,6 +90,6 @@ Zaključak.
 \bibliographystyle{fer}
 
 \chapter{Sažetak}
-Sažetak.
+Sažetak. ne treba nam ovo
 
 \end{document}
