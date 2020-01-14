@@ -102,7 +102,7 @@ U konačnici se konstruiraju poboljšani sljedovi \textit{contiga} i za svako po
 
 
 \chapter{Rezultati}
-Implementacija je ispitana na generiranom skupu te na skupovima E. coli, C. jejuni i B. grahamii na jednoj dretvi uz procesorsku moć od ... GHz. Posljednja tri skupa podataka temelje se na genomima reda veličine 1 Mb. Priložene su matrice preklapanja između referentnih skupova te prvo neobrađenih, a odmah zatim i obrađenih \textit{contiga}. Za svaki skup podataka prikazana su moguća poboljšanja sastavljanja \textit{contiga}. Sve matrice dobivene su alatom \textit{Gepard} opisanim u \cite{gepard}. Ishodište je u gornjem lijevom kutu, x-os predstavlja referencu, a y-os predstavlja \textit{contige}. Crne točke označavaju podudaranja. Predznak u opisima matrica označava korištenu orijentaciju \textit{contiga}: + je izvorna, a - reverzna. Npr. +5, -2 znači da je pronađeno povezivanje za izvorno orijentirani \textit{contig} 5 i reverzni 2.
+Implementacija je ispitana na generiranom skupu te na skupovima E. coli, C. jejuni i B. grahamii. Posljednja tri skupa podataka temelje se na genomima reda veličine 1 Mb. Priložene su matrice preklapanja između referentnih skupova te prvo neobrađenih, a odmah zatim i obrađenih \textit{contiga}. Za svaki skup podataka prikazana su moguća poboljšanja sastavljanja \textit{contiga}. Sve matrice dobivene su alatom \textit{Gepard} opisanim u \cite{gepard}. Ishodište je u gornjem lijevom kutu, x-os predstavlja referencu, a y-os predstavlja \textit{contige}. Crne točke označavaju podudaranja. Predznak u opisima matrica označava korištenu orijentaciju \textit{contiga}: + je izvorna, a - reverzna. Npr. +5, -2 znači da je pronađeno povezivanje za izvorno orijentirani \textit{contig} 5 i reverzni 2.
 
 \section{Generirani podaci}
 Implementacija je ispitana na umjetno generiranom skupu podataka s duljinama reda veličine 10 kb.
@@ -125,7 +125,7 @@ Implementacija je ispitana na umjetno generiranom skupu podataka s duljinama red
 
 
 \section{E. coli}
-Ovo je sintetski skup podataka, shodno čemu su i ostvareni rezultati bolji u usporedbi s narednim dvama, realnim skupovima. Rezultirajući izlazi programa zapravo su inverzi jedan drugog. Pripadne matrice preklapanja priložene su na \ref{fig:eccontigs}, \ref{fig:ec123} i \ref{fig:ec321neg}.
+Ovo je sintetski skup podataka, shodno čemu su i ostvareni rezultati bolji u usporedbi s narednim dvama, realnim skupovima. Rezultirajući izlazi programa zapravo su inverzi jedan drugog. Pripadne matrice preklapanja priložene su na slikama \ref{fig:eccontigs}, \ref{fig:ec123} i \ref{fig:ec321neg}.
 
 \begin{figure}[h]
 	\centering
@@ -150,7 +150,7 @@ Ovo je sintetski skup podataka, shodno čemu su i ostvareni rezultati bolji u us
 
 
 \section{C. jejuni}
-Prvi realni skup podataka predstavlja očitanja nad genomom bakterije C. jejuni. Pripadne matrice preklapanja priložene su na \ref{fig:cjcontigs} i \ref{fig:cj53}.
+Prvi realni skup podataka predstavlja očitanja nad genomom bakterije C. jejuni. Pripadne matrice preklapanja priložene su na slikama \ref{fig:cjcontigs} i \ref{fig:cj53}.
 
 \begin{figure}[h]
 	\centering
@@ -170,7 +170,7 @@ Prvi realni skup podataka predstavlja očitanja nad genomom bakterije C. jejuni.
 
 
 \section{B. grahamii}
-Drugi realni skup podataka čine očitanja genoma bakterije B. grahamii. Pripadne matrice preklapanja priložene su na \ref{fig:bhcontigs}, \ref{fig:bh64} i \ref{fig:bh162}.
+Drugi realni skup podataka čine očitanja genoma bakterije B. grahamii. Pripadne matrice preklapanja priložene su na slkama \ref{fig:bhcontigs}, \ref{fig:bh64} i \ref{fig:bh162}.
 
 \begin{figure}[h]
 	\centering
@@ -197,23 +197,65 @@ Drugi realni skup podataka čine očitanja genoma bakterije B. grahamii. Pripadn
 
 \section{Vremensko i memorijsko opterećenje}
 
+U tablici \ref{table:results} priloženi su podaci o vremenu i memoriji jednoretvenog izvođenja procesorom Intel Core i7-8565U nepojačane frekvencije.
+
+\begin{table}[h]
 \begin{center}
-\begin{tabular}[h]{|c||c|c|}
+\begin{tabular}{|c||c|c|}
 	\hline
-	skup podataka & vrijeme (s) & memorija (GiB)\\
+	skup podataka & vrijeme (s) & memorija (MB)\\
 	\hline
 	\hline
-	E. coli & X & Y \\
+	E. coli & 9.396 & 1498 \\
 	\hline
-	C. jejuni & B & C \\
+	C. jejuni & 26.675 & 1756 \\
 	\hline
-	B. grahamii & W & Z \\
+	B. grahamii & 58.714 & 3923 \\
 	\hline
 \end{tabular}
+	\caption{Vremensko i memorijsko opterećenje izvođenja.}
+	\label{table:results}
 \end{center}
+\end{table}
+
+\chapter{Upute za korištenje}
+
+\section{Instalacija}
+
+Za početak je potrebno skinuti kod s GitHub repozitorija pokretanjem naredbe:
+
+\begin{verbatim}
+git clone https://github.com/brunokovac/BIOINF
+\end{verbatim}
+
+Za prevođenje Java paketa unutar direktorija \textit{Kodovi/PROJEKT\_8} pokrenite naredbu:
+
+\begin{verbatim}
+javac -d bin -sourcepath src src/hr/fer/bioinf/Main.java
+\end{verbatim}
+
+\section{Pokretanje}
+
+Osnovni oblik pokretanja programa zadan je sljedećom naredbom:
+
+\begin{verbatim}
+java -cp bin/ hr.fer.bioinf.Main \
+    --reads-path=reads.fasta \
+    --contigs-path=contigs.fasta \
+    --reads-overlaps-path=reads_reads_overlaps.paf \
+    --contigs-reads-overlaps_path=reads_contigs_overlaps.paf \
+    --output-folder=output_dir/
+\end{verbatim}
+
+Pritom je potrebno postaviti argumente u naredbenom retku \verb^--reads-path^ i \verb^--contigs-path^ na datoteke u \textit{fasta} formatu. Opcije \verb^--reads-overlaps-path^ i \verb^--contigs-reads-overlaps-path^ potrebno
+postaviti na lokacije datoteka koje se prethodno dobivaju korištenjem alata Minimap.
+Konačno, \verb^--output-path^ potrebno je postaviti na direktorij u koji će se
+spremiti generirani DNA slijedovi. Ovo su samo neke od više mogućih opcija dostupnih
+u glavnom programu. Pokretanjem programa s opcijom \verb^--help^ moguće je vidjeti
+popis ostalih opcija (i njihovim pretpostavljenih vrijednosti) pomoću kojih je moguće kontrolirati izvođenje algoritma.
 
 \chapter{Zaključak}
-Implementacija uspijeva pronaći poboljšane nizove \textit{contiga}, s većom uspješnošću za sintetski primjer E. coli koji nema dubioznih \textit{contiga}. Vremensko i memorijsko opterećenje implementacije u razumnim je granicama. <- ZADNJA REČENICA JE VAGUE. može se još dodat osobni stav članova tima o realnoj primjenjivosti ove implementacije.
+Implementacija uspijeva pronaći poboljšane nizove \textit{contiga}, s većom uspješnošću za sintetski primjer E. coli koji nema dubioznih \textit{contiga}. Vremensko i memorijsko opterećenje implementacije unutar je granica izvedivosti na prosječnom suvremenom kućnom računalu.
 
 \bibliography{literatura}
 \bibliographystyle{fer}
