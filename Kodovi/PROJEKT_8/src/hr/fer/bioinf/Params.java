@@ -46,25 +46,25 @@ public class Params {
   @Option(
       name = "contigs-path",
       description = "Contigs path",
-      defaultValue = "")
+      defaultValue = "data/ecoli_test_contigs.fasta")
   public static String CONTIGS_PATH;
 
   @Option(
       name = "reads-path",
       description = "Reads path",
-      defaultValue = "")
+      defaultValue = "data/ecoli_test_reads.fasta")
   public static String READS_PATH;
 
   @Option(
       name = "contigs-reads-overlaps-path",
       description = "Contigs-reads overlaps path",
-      defaultValue = "")
+      defaultValue = "data/ecoli_test_contigs_overlaps.paf")
   public static String CONTIGS_READS_OVERLAPS_PATH;
 
   @Option(
       name = "reads-overlaps-path",
       description = "Reads-reads overlaps path",
-      defaultValue = "")
+      defaultValue = "data/ecoli_test_reads_overlaps.paf")
   public static String READS_OVERLAPS_PATH;
 
   @Option(

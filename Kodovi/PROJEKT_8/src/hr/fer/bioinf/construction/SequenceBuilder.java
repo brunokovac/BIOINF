@@ -9,7 +9,6 @@ import hr.fer.bioinf.traversal.TraversalPath;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/** Class that builds resulting DNA sequences based on list of consensus paths. */
 public class SequenceBuilder {
   private Graph graph;
 
@@ -17,13 +16,6 @@ public class SequenceBuilder {
     this.graph = graph;
   }
 
-  /**
-   * Builds list of resulting sequences using the following algorithm: First, all consensus paths
-   * are sorted by its valid path number. Then the sorted list is iterated and edge connecting two
-   * anchoring nodes of the current consensus path is added to the resulting graph only if that
-   * action is possible (i.e. if it won't create cycle, or make one node have two possible ingoing
-   * or outgoing edges).
-   */
   public List<TraversalPath> build(List<Consensus> consensuses) {
     consensuses.sort(Comparator.comparingInt(Consensus::getValidIndex));
     Collections.reverse(consensuses);
