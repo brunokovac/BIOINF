@@ -24,27 +24,17 @@ public class TraversalPath {
     return new TraversalPath(combinedEdges);
   }
 
-  public String id() {
+  public String summary() {
     StringBuilder builder = new StringBuilder();
     for (Edge edge : edges) {
       Node node = edge.from().node();
       if (node.isAnchor()) {
-        builder.append(node.getID());
-        if (node.isReversed()) {
-          builder.append("[-]");
-        } else {
-          builder.append("[+]");
-        }
+        builder.append(node.summary());
         builder.append(',');
       }
     }
     Node last = edges.get(edges.size() - 1).to().node();
-    builder.append(last.getID());
-    if (last.isReversed()) {
-      builder.append("[-]");
-    } else {
-      builder.append("[+]");
-    }
+    builder.append(last.summary());
     return builder.toString();
   }
 

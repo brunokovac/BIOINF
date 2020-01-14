@@ -23,6 +23,11 @@ public class Node {
     return id;
   }
 
+  public String summary() {
+    char strand = reversed ? '-' : '+';
+    return String.format("%s[%c]", id, strand);
+  }
+
   public String getData() {
     return data;
   }

@@ -79,6 +79,12 @@ public class Params {
       defaultValue = "data/out/")
   public static String OUTPUT_FOLDER;
 
+  @Option(
+      name = "conflict-index-cutoff",
+      description = "Conflict index cutoff",
+      defaultValue = "0.5")
+  public static double CONFLIXT_INDEX_CUTOFF;
+
   private static List<Field> paramFields() {
     List<Field> fields = new ArrayList<>();
     for (Field field : Params.class.getDeclaredFields()) {

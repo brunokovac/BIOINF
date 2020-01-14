@@ -1,35 +1,68 @@
 package hr.fer.bioinf.construction;
 
+import hr.fer.bioinf.Params;
 import hr.fer.bioinf.consensus.Consensus;
 import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.graph.Node;
 import hr.fer.bioinf.traversal.TraversalPath;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SequenceBuilder {
-  Graph graph;
+  private Graph graph;
 
   public SequenceBuilder(Graph graph) {
     this.graph = graph;
   }
 
   public List<TraversalPath> build(List<Consensus> consensuses) {
-    // discard all consensuses path with valid index less than 20 percent of the highest one
-    int minValidIndex = consensuses.get(consensuses.size() - 1).getValidIndex() / 8;
+    consensuses.sort(Comparator.comparingInt(Consensus::getValidIndex));
+    Collections.reverse(consensuses);
+
+    ConstructionGraph constructionGraph = new ConstructionGraph();
+    for (Consensus consensus : consensuses) {
+      constructionGraph.maybeAddEdge(consensus.getPath());
+    }
+    return constructionGraph.getPaths();
+  }
+
+  public List<TraversalPath> buildUsingConflictIndex(List<Consensus> consensuses) {
+    int minValidIndex = consensuses.get(consensuses.size() - 1).getValidIndex() / 20;
     List<Consensus> filteredConsensuses =
         consensuses.stream()
             .filter(consensus -> consensus.getValidIndex() >= minValidIndex)
             .collect(Collectors.toList());
     Collections.reverse(filteredConsensuses);
 
-    ConstructionGraph constructionGraph = new ConstructionGraph();
-    for (Consensus consensus : filteredConsensuses) {
-      constructionGraph.maybeAddEdge(consensus.getPath());
+    Map<Node, List<Consensus>> consensusMapping = splitByStartNode(consensuses);
+    List<Consensus> finalConsensuses = new ArrayList<>();
+
+    for (Map.Entry<Node, List<Consensus>> entry : consensusMapping.entrySet()) {
+      List<Consensus> list = entry.getValue();
+      list.sort(Comparator.comparingInt(Consensus::getValidIndex));
+      Collections.reverse(list);
+      if (list.size() == 1) {
+        continue;
+      }
+      double conflictIndex = list.get(1).getValidIndex() / (double) list.get(0).getValidIndex();
+      // TODO: add to parameters
+      if (conflictIndex < Params.CONFLIXT_INDEX_CUTOFF) {
+        finalConsensuses.add(list.get(0));
+      }
     }
-    return constructionGraph.getPaths();
+    return build(finalConsensuses);
+  }
+
+  private Map<Node, List<Consensus>> splitByStartNode(List<Consensus> consensuses) {
+    Map<Node, List<Consensus>> mapping = new HashMap<>();
+    for (Consensus consensus : consensuses) {
+      Node key = consensus.getPath().from();
+      if (!mapping.containsKey(key)) {
+        mapping.put(key, new ArrayList<>());
+      }
+      mapping.get(key).add(consensus);
+    }
+    return mapping;
   }
 }

@@ -22,8 +22,6 @@ public class Main {
     Params.init(args);
     Clock clock = new Clock();
 
-    System.err.println(Params.EXCLUDED_CONTIGS.size());
-
     // Build a graph
     clock.restart();
     Graph graph =
@@ -47,40 +45,39 @@ public class Main {
         "[INFO] Found %d paths between anchoring nodes (removed %d duplicates).  [%dms]%n",
         paths.size(), pathsSizeStart - pathsSizeEnd, clock.elapsedTime());
 
+    // Find consensuses and construct output sequences
+    clock.restart();
     Map<String, List<TraversalPath>> pathsMapping = splitByID(paths);
-
     List<Consensus> consensuses =
         pathsMapping.values().stream()
             .map(ConsensusBuilder::build)
             .sorted(Comparator.comparingInt(Consensus::getValidIndex))
             .collect(Collectors.toList());
+    List<TraversalPath> results = new SequenceBuilder(graph).buildUsingConflictIndex(consensuses);
+    System.err.printf(
+        "[INFO] Found %d resulting paths.  [%dms]%n", results.size(), clock.elapsedTime());
 
-    for (Consensus consensus : consensuses) {
-      System.err.println(consensus.getPath().id() + " --> " + consensus.getValidIndex());
-    }
-    System.err.println();
-
-    List<TraversalPath> results = new SequenceBuilder(graph).build(consensuses);
+    // Output paths
     for (TraversalPath path : results) {
       BufferedWriter writer =
-          new BufferedWriter(new FileWriter(Params.OUTPUT_FOLDER + path.id() + ".fasta"));
-      writer.write(String.format(">%s%n", path.id()));
+          new BufferedWriter(new FileWriter(Params.OUTPUT_FOLDER + path.summary() + ".fasta"));
+      writer.write(String.format(">%s%n", path.summary()));
       writer.write(String.format("%s%n", path.getSequence()));
       writer.close();
 
-      System.err.println(path.id());
-      debugPath(path);
       System.err.println();
+      System.err.println(path.summary());
+      debugPath(path);
     }
   }
 
   private static Map<String, List<TraversalPath>> splitByID(List<TraversalPath> paths) {
     Map<String, List<TraversalPath>> pathsMapping = new HashMap<>();
     for (TraversalPath path : paths) {
-      if (!pathsMapping.containsKey(path.id())) {
-        pathsMapping.put(path.id(), new ArrayList<>());
+      if (!pathsMapping.containsKey(path.summary())) {
+        pathsMapping.put(path.summary(), new ArrayList<>());
       }
-      pathsMapping.get(path.id()).add(path);
+      pathsMapping.get(path.summary()).add(path);
     }
     return pathsMapping;
   }

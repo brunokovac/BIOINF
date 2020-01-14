@@ -54,7 +54,6 @@ public class MonteCarloTraversal implements Traversal {
   public List<TraversalPath> findPaths(Graph graph) {
     List<TraversalPath> paths = new ArrayList<>();
     for (Node node : graph.getNodes()) {
-
       if (!node.isAnchor()) {
         continue;
       }
