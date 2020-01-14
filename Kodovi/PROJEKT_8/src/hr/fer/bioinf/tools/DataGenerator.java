@@ -8,8 +8,6 @@ import java.util.stream.Collectors;
 
 /**
  * Generator tool for creating artifical test data for evaluating the algorithm.
- *
- * <p>TODO: OPISATI SVE METODE
  */
 public class DataGenerator {
   public static void main(String[] args) {
