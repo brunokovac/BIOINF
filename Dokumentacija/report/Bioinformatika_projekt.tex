@@ -18,7 +18,7 @@
 \tableofcontents
 
 \chapter{Uvod}
-Sekvenciranje genoma svodi se na kombiniranje očitanja u jednu cjelinu. Ovaj rad pretpostavlja da su očitanja već sastavljena, ali djelomično - u fragmente. Jedan takav fragment naziva se \textit{contig}. Dakle, zadatak se svodi na što bolje povezivanje \textit{contiga}, što smo učinili postupkom opisanim u \cite{Du345983}, koji se oslanja na duga očitanja (?). Taj rad definira nekoliko mjera preklopljenosti očitanja koje kombiniraju duljinu područja \textit{overlap} ($OL$), \textit{overhang} ($OH$) i \textit{extension} ($EL$). Mjere su ovdje definirane za dva očitanja $S_1$ i $S_2$; pripadnost područja određena je indeksom.
+Sekvenciranje genoma svodi se na kombiniranje očitanja u jednu cjelinu. Ovaj rad pretpostavlja da su očitanja već sastavljena, ali djelomično - u fragmente. Jedan takav fragment naziva se \textit{contig}. Dakle, zadatak se svodi na što bolje povezivanje \textit{contiga}, što smo učinili postupkom opisanim u \cite{Du345983}. Taj rad definira nekoliko mjera preklopljenosti očitanja koje kombiniraju duljinu područja \textit{overlap} ($OL$), \textit{overhang} ($OH$) i \textit{extension} ($EL$). Mjere su ovdje definirane za dva očitanja $S_1$ i $S_2$; pripadnost područja određena je indeksom.
 
 \begin{figure}[h]
 	\centering
@@ -40,7 +40,8 @@ Sekvenciranje genoma svodi se na kombiniranje očitanja u jednu cjelinu. Ovaj ra
 \chapter{Postupak}
 Sastavljanje očitanja u niz modelirano je izgradnjom i obilaskom grafa.
 \section{Izgradnja grafa}
-Svaki \textit{contig} i svako očitanje čine jedan čvor grafa. Čvor koji predstavlja \textit{contig} zovemo \textit{anchor}. Brid postoji između svaka dva čvora čiji je $SI$ veći od nekog minimuma (u radu je uzeta vrijednost $0.97$). Pritom svaki brid nosi informacije o preklopljenosti čvorova koje povezuje ($SI$, $OS$, $ES$). Te mjere računaju se na temelju informacija o preklopljenosti dobivenih korištenjem alata \textit{minimap2} opisanog u \cite{minimap2}.
+Svaki \textit{contig} i svako očitanje čine jedan čvor grafa. Dodatno, u skup čvorova dodaje se i reverzna inačica svakog očitanja i \textit{contiga} jer nije unaprijed poznato koja je pogodna orijentacija. Čvor koji predstavlja \textit{contig} zovemo \textit{anchor}. Za svako očitanje 
+Brid postoji između svaka dva čvora čiji je $SI$ veći od nekog minimuma. Pritom svaki brid nosi informacije o preklopljenosti čvorova koje povezuje ($SI$, $OS$, $ES$). Te mjere računaju se na temelju informacija o preklopljenosti dobivenih korištenjem alata \textit{minimap2} opisanog u \cite{minimap2}.
 
 \section{Obilazak grafa}
 
@@ -49,6 +50,8 @@ Svaki \textit{contig} i svako očitanje čine jedan čvor grafa. Čvor koji pred
 	\includegraphics[width=0.7\linewidth]{img/traversal}
 	\caption{Odabir sljedećeg čvora u obilasku}
 	\label{fig:traversal}
+	\small
+	Slika razmatra grananje u hipotetskom čvoru N1. Prvim postupkom prioritetna lista je: [N4, N2, N3], a drugim postupkom: [N4, N3, N2]. Treći postupak daje vjerojatnosti odabira čvorova \{N2: 150/500, N3: 150/500, N4: 200/500\}.
 \end{figure}
 
 \noindent
@@ -60,36 +63,76 @@ Kroz graf se traže putovi čije su krajnje točke \textit{anchor} čvorovi. Za 
 \end{enumerate}
 
 \section{Obrada putova}
-Nakon agregacije putova dobivenih trima (?) opisanim postupcima, odbacuju se duplikati i radi se odabir jednog puta za svaki par \textit{anchor} čvorova....
-Conflict index?
+Nakon agregacije putova dobivenih opisanim postupcima, odbacuju se duplikati i obrađuju se putovi između svaka dva \textit{anchor} čvora. Putovi se sortiraju uzlazno prema duljini i razmatraju se prozori fiksne širine $W$. Pritom $i$-ti prozor obuhvaća sve putove čija je duljina $L$: $(i-1)W < L \le iW$ za dobro definirane $i$. Koliko je koji prozor frekventan vidljivo je na primjeru povezivanja dvaju \textit{contiga} na slici \ref{fig:distribution}. Pretpostavka je da dominacija nekog prozora ukazuje na to da su u njemu putovi koji su izgledni kandidati za povezivanje dvaju \textit{anchor} čvorova između kojih se nalaze. Problem je što to ne mora biti istina, tj. moguće je dominiranje nekog prozora, a da ta dva \textit{anchor} čvora uopće nisu uzastopna.
 
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{img/distribution}
+	\caption{Dstribucija putova po prozorima fiksne širine}
+	\label{fig:distribution}
+	\small
+	Distribucija putova između dva \textit{anchor} čvora. Na x-osi označene su širine prozora, a na y-osi frekventnost (udio brojnosti putova prozora u ukupnom broju putova). Najviši stupac dat će i reprezentant povezanosti dvaju čvorova.
+\end{figure}
 
-\section{Primjer (?)}
-% vizualizacijski primjer
-jel dovoljno ilustrirati svaki korak, ili provođenje cijelog algoritma treba ilustrirat baš na zasebnom primjeru?
+Za svaki par \textit{anchor} čvorova računa se konsenzus - struktura podataka koja sadrži reprezentativni put te broj valjanih putova između tih dvaju čvorova. Kao reprezentant odabire se proizvoljni čvor maksimalne duljine. Na slici \ref{fig:distribution} to je jedan od putova duljine cca 850000 (najviši stupac). Dodatno, iz susjedstva svakog \textit{anchor} čvora uklanjaju se oni \textit{anchor} čvorovi do kojih postoji premalo putova. Drugim riječima, takvi susjedi vjerojatno ne trebaju biti povezani. U konačnici se konstruiraju poboljšani sljedovi \textit{contiga} i za svako poboljšanje generira se izlazna datoteka. Primjer je dan na slici % TODO bilo bi odlično ovdi ubacit primjer kako se iz filtriranih konsenzusa određuju poboljšani odnosno povezani contizi
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{img/valid_path_numbers_filtered}
+	\caption{Otpadanje jedne grane u slučaju kada je granica za odbacivanje 12.5\% od najvećeg broja valjanih putova.}
+	\label{fig:validpathnumbersfiltered}
+\end{figure}
 
 \chapter{Rezultati}
-Implementacija je ispitana na uzorcima ..., ... i ... na jednoj dretvi uz procesorsku moć od ... GHz.
+Implementacija je ispitana na skupovima E. Coli, C. Jejuni i B. Grahamii na jednoj dretvi uz procesorsku moć od ... GHz. Priložene su matrice preklapanja između referentnih skupova te prvo neobrađenih, a odmah zatim i obrađenih \textit{contiga}. Sve matrice dobivene su alatom \textit{Gepard} opisanim u \cite{gepard}. Crne točke označavaju podudaranja, x-os predstavlja referencu, a y-os predstavlja \textit{contige}. Predznak u opisima matrica označava korištenu orijentaciju \textit{contiga}: + je izvorna, a - reverzna.
+
+\section{E. Coli}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{img/ec_contigs}
+	\caption{Matrica preklapanja neobrađenih \textit{contiga} E. Coli i referentnog skupa.}
+	\label{fig:eccontigs}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{img/ec_1_2_3}
+	\caption{Jedan je izlaz programa niz \textit{contiga} +1, +2, +3.}
+	\label{fig:ec123}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\linewidth]{img/ec_3_2_1_neg}
+	\caption{Drugi je izlaz programa niz \textit{contiga} -3, -2, -1.}
+	\label{fig:ec321neg}
+\end{figure}
+
+\section{C. Jejuni}
+% TODO
+\section{B. Grahamii}
+% TODO
+\section{Vremensko i memorijsko opterećenje}
 
 \begin{center}
 \begin{tabular}{|c||c|c|}
 	\hline
-	uzorak / organizam (?) & vrijeme (s) & memorija (GiB)\\
+	skup podataka & vrijeme (s) & memorija (GiB)\\
 	\hline
 	\hline
 	E. Coli & X & Y \\
 	\hline
-	A & B & C \\
+	C. Jejuni & B & C \\
+	\hline
+	B. Grahamii & W & Z \\
 	\hline
 \end{tabular}
 \end{center}
+
 \chapter{Zaključak}
 Zaključak.
 
 \bibliography{literatura}
 \bibliographystyle{fer}
-
-\chapter{Sažetak}
-Sažetak. ne treba nam ovo
 
 \end{document}
