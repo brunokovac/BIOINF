@@ -1,6 +1,7 @@
 \documentclass[times, utf8, seminar, numeric]{fer}
 \usepackage{booktabs}
- \usepackage{url}
+\usepackage{url}
+\usepackage[section]{placeins}
 
 \begin{document}
 
@@ -22,7 +23,7 @@ Sekvenciranje genoma svodi se na kombiniranje očitanja u jednu cjelinu. Ovaj ra
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.7\linewidth]{img/overlap}
+	\centerline{\includegraphics[width=0.6\linewidth]{img/overlap}}
 	\caption[]{Preklop dvaju očitanja s naznačenim područjima}
 	\label{fig:overlap}
 \end{figure}
@@ -47,7 +48,7 @@ Brid postoji između svaka dva čvora čiji je $SI$ veći od nekog minimuma. Pri
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.7\linewidth]{img/traversal}
+	\centerline{\includegraphics[width=0.6\linewidth]{img/traversal}}
 	\caption{Odabir sljedećeg čvora u obilasku}
 	\label{fig:traversal}
 	\small
@@ -67,55 +68,119 @@ Nakon agregacije putova dobivenih opisanim postupcima, odbacuju se duplikati i o
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.7\linewidth]{img/distribution}
+	\centerline{\includegraphics[width=0.6\linewidth]{img/distribution}}
 	\caption{Dstribucija putova po prozorima fiksne širine}
 	\label{fig:distribution}
 	\small
 	Distribucija putova između dva \textit{anchor} čvora. Na x-osi označene su širine prozora, a na y-osi frekventnost (udio brojnosti putova prozora u ukupnom broju putova). Najviši stupac dat će i reprezentant povezanosti dvaju čvorova.
 \end{figure}
 
-Za svaki par \textit{anchor} čvorova računa se konsenzus - struktura podataka koja sadrži reprezentativni put te broj valjanih putova između tih dvaju čvorova. Kao reprezentant odabire se proizvoljni čvor maksimalne duljine. Na slici \ref{fig:distribution} to je jedan od putova duljine cca 850000 (najviši stupac). Dodatno, iz susjedstva svakog \textit{anchor} čvora uklanjaju se oni \textit{anchor} čvorovi do kojih postoji premalo putova. Drugim riječima, takvi susjedi vjerojatno ne trebaju biti povezani. U konačnici se konstruiraju poboljšani sljedovi \textit{contiga} i za svako poboljšanje generira se izlazna datoteka. Primjer je dan na slici % TODO bilo bi odlično ovdi ubacit primjer kako se iz filtriranih konsenzusa određuju poboljšani odnosno povezani contizi
+Za svaki par \textit{anchor} čvorova računa se konsenzus - struktura podataka koja sadrži reprezentativni put te broj valjanih putova između tih dvaju čvorova. Kao reprezentant odabire se proizvoljni čvor maksimalne duljine. Na slici \ref{fig:distribution} to je jedan od putova duljine cca 850000 (najviši stupac). Dodatno, iz susjedstva svakog \textit{anchor} čvora uklanjaju se oni \textit{anchor} čvorovi do kojih je broj putova ispod neke određene granice. Drugim riječima, takvi susjedi vjerojatno ne trebaju biti povezani. U konačnici se konstruiraju poboljšani sljedovi \textit{contiga} i za svako poboljšanje generira se izlazna datoteka. (OVDI DODAT KAKO SE KONSTRUIRAJU POBOLJŠANI SLJEDOVI)% TODO
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.7\linewidth]{img/valid_path_numbers_filtered}
+	\centerline{\includegraphics[width=0.6\linewidth]{img/valid_path_numbers_filtered}}
 	\caption{Otpadanje jedne grane u slučaju kada je granica za odbacivanje 12.5\% od najvećeg broja valjanih putova.}
 	\label{fig:validpathnumbersfiltered}
 \end{figure}
 
 \chapter{Rezultati}
-Implementacija je ispitana na skupovima E. Coli, C. Jejuni i B. Grahamii na jednoj dretvi uz procesorsku moć od ... GHz. Priložene su matrice preklapanja između referentnih skupova te prvo neobrađenih, a odmah zatim i obrađenih \textit{contiga}. Sve matrice dobivene su alatom \textit{Gepard} opisanim u \cite{gepard}. Crne točke označavaju podudaranja, x-os predstavlja referencu, a y-os predstavlja \textit{contige}. Predznak u opisima matrica označava korištenu orijentaciju \textit{contiga}: + je izvorna, a - reverzna.
+Implementacija je ispitana na skupovima E. Coli, C. Jejuni i B. Grahamii na jednoj dretvi uz procesorsku moć od ... GHz. Priložene su matrice preklapanja između referentnih skupova te prvo neobrađenih, a odmah zatim i obrađenih \textit{contiga}. Za svaki skup podataka prikazana su moguća poboljšanja sastavljanja \textit{contiga}. Sve matrice dobivene su alatom \textit{Gepard} opisanim u \cite{gepard}. Ishodište je u gornjem lijevom kutu, x-os predstavlja referencu, a y-os predstavlja \textit{contige}. Crne točke označavaju podudaranja. Predznak u opisima matrica označava korištenu orijentaciju \textit{contiga}: + je izvorna, a - reverzna. Npr. +5, -2 znači da je pronađeno povezivanje za izvorno orijentirani \textit{contig} 5 i reverzni 2.
 
-\section{E. Coli}
+\section{Generirani podaci}
+Implementacija je ispitana i na umjetno generiranom skupu podataka.
+
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.7\linewidth]{img/ec_contigs}
+	\centerline{\includegraphics[width=0.6\linewidth]{img/generated}}
+	\caption{Matrica preklapanja neobrađenih umjetno generiranih \textit{contiga} i točne reference.}
+	\label{fig:generated}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\centerline{\includegraphics[width=0.6\linewidth]{img/generated_reference}}
+	\caption{Poboljšanje generiranog testnog slučaja.}
+	\label{fig:generatedreference}
+	\small
+	Pronađeni redoslijed \textit{contiga} je -1, +2, -3, +4.
+\end{figure}
+
+
+
+\section{E. Coli}
+Ovo je sintetski skup podataka, shodno čemu su i ostvareni rezultati bolji u usporedbi s narednim dvama, realnim skupovima. Rezultirajući izlazi programa zapravo su inverzi jedan drugog.
+
+\begin{figure}[h]
+	\centering
+	\centerline{\includegraphics[width=0.6\linewidth]{img/ec_contigs}}
 	\caption{Matrica preklapanja neobrađenih \textit{contiga} E. Coli i referentnog skupa.}
 	\label{fig:eccontigs}
 \end{figure}
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.7\linewidth]{img/ec_1_2_3}
-	\caption{Jedan je izlaz programa niz \textit{contiga} +1, +2, +3.}
+	\centerline{\includegraphics[width=0.6\linewidth]{img/ec_1_2_3}}
+	\caption{Prvo poboljšanje: niz \textit{contiga} +1, +2, +3.}
 	\label{fig:ec123}
 \end{figure}
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.7\linewidth]{img/ec_3_2_1_neg}
-	\caption{Drugi je izlaz programa niz \textit{contiga} -3, -2, -1.}
+	\centerline{\includegraphics[width=0.6\linewidth]{img/ec_3_2_1_neg}}
+	\caption{Drugo poboljšanje: niz \textit{contiga} -3, -2, -1.}
 	\label{fig:ec321neg}
 \end{figure}
 
 \section{C. Jejuni}
-% TODO
+Prvi realni skup podataka predstavlja očitanja nad genomom bakterije C. Jejuni.
+
+\begin{figure}[h]
+	\centering
+	\centerline{\includegraphics[width=0.6\linewidth]{img/cj_contigs}}
+	\caption{Matrica preklapanja neobrađenih \textit{contiga} C. Jejuni i referentnog skupa.}
+	\label{fig:cjcontigs}
+	\small
+	Svaki contig predstavljen je jednom bojom. \textit{Contig} 1 (najgornji) već je dakle u ulaznoj datoteci definiran \textit{izlomljeno}, tj. obuhvaća očitanja sa stvarnog početka i kraja.
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\centerline{\includegraphics[width=0.6\linewidth]{img/cj_5_3}}
+	\caption{Poboljšanje: niz \textit{contiga} +5, -3.}
+	\label{fig:cj53}
+\end{figure}
+
 \section{B. Grahamii}
-% TODO
+Drugi realni skup podataka čine očitanja genoma bakterije B. Grahamii.
+
+\begin{figure}[h]
+	\centering
+	\centerline{\includegraphics[width=0.6\linewidth]{img/bh_contigs}}
+	\caption{Matrica preklapanja neobrađenih \textit{contiga} B. Grahamii i referentnog skupa.}
+	\label{fig:bhcontigs}
+	\small
+	Svaki contig predstavljen je jednom bojom. Ponovno su vidljive izlomljenosti u ulaznim podacima.
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\centerline{\includegraphics[width=0.6\linewidth]{img/bh_6_4}}
+	\caption{Poboljšanje: niz \textit{contiga} +6, -4.}
+	\label{fig:bh64}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\centerline{\includegraphics[width=0.6\linewidth]{img/bh_1_6_2}}
+	\caption{Poboljšanje: niz \textit{contiga} +1, -6, -5, -2.}
+	\label{fig:bh162}
+\end{figure}
+
 \section{Vremensko i memorijsko opterećenje}
 
 \begin{center}
-\begin{tabular}{|c||c|c|}
+\begin{tabular}[h]{|c||c|c|}
 	\hline
 	skup podataka & vrijeme (s) & memorija (GiB)\\
 	\hline
