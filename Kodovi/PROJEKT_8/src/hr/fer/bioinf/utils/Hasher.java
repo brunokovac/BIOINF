@@ -1,5 +1,6 @@
 package hr.fer.bioinf.utils;
 
+/** Util class for hashing given values. */
 public class Hasher {
   private int hashCode;
 

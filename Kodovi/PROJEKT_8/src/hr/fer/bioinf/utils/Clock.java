@@ -1,5 +1,6 @@
 package hr.fer.bioinf.utils;
 
+/** Util class for timing program execution. */
 public class Clock {
   private long lastTime;
 

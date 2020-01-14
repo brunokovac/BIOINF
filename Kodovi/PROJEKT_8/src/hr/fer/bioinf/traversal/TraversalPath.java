@@ -7,6 +7,10 @@ import hr.fer.bioinf.graph.Edge;
 import hr.fer.bioinf.graph.Node;
 import hr.fer.bioinf.utils.Hasher;
 
+/**
+ * Model of traversal path. Path consists of series of edges from which the path of nodes is finally
+ * generated.
+ */
 public class TraversalPath {
   private List<Edge> edges;
 
@@ -18,12 +22,20 @@ public class TraversalPath {
     return edges;
   }
 
+  /**
+   * Concatenates other traversal path to the one on which the method is called.
+   *
+   * @param path other path
+   * @return combined path
+   */
   public TraversalPath concat(TraversalPath path) {
     List<Edge> combinedEdges = new ArrayList<>(edges);
     combinedEdges.addAll(path.edges);
     return new TraversalPath(combinedEdges);
   }
 
+
+  /** Summary is a list of anchoring nodes in the sequence. */
   public String summary() {
     StringBuilder builder = new StringBuilder();
     for (Edge edge : edges) {
@@ -46,6 +58,11 @@ public class TraversalPath {
     return edges.get(edges.size() - 1).to().node();
   }
 
+  /**
+   * Estimates path length.
+   *
+   * @return estimated length
+   */
   public int getEstimatedLength() {
     int length = 0;
     int prev = 0;
@@ -58,6 +75,12 @@ public class TraversalPath {
     return length + edges.get(edges.size() - 1).to().node().length() - prev;
   }
 
+  /**
+   * Generates DNA sequence based on edges in path and corresponding nodes contained in the
+   * traversal path.
+   *
+   * @return DNA sequence
+   */
   public String getSequence() {
     StringBuilder builder = new StringBuilder();
     int prev = 0;

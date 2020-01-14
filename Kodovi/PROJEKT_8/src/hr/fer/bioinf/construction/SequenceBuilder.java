@@ -43,10 +43,10 @@ public class SequenceBuilder {
       list.sort(Comparator.comparingInt(Consensus::getValidIndex));
       Collections.reverse(list);
       if (list.size() == 1) {
+        finalConsensuses.add(list.get(0));
         continue;
       }
       double conflictIndex = list.get(1).getValidIndex() / (double) list.get(0).getValidIndex();
-      // TODO: add to parameters
       if (conflictIndex < Params.CONFLIXT_INDEX_CUTOFF) {
         finalConsensuses.add(list.get(0));
       }

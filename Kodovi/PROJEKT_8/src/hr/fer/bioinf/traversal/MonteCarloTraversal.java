@@ -8,9 +8,21 @@ import hr.fer.bioinf.graph.Edge;
 import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.graph.Node;
 
+/**
+ * Graph traversal based on Monte Carlo approach where each next node is selected based on its
+ * extension score (bigger extension score equals proportionally better chance to get selected for
+ * next step). This approach is specified by number of trials and max depth.
+ */
 public class MonteCarloTraversal implements Traversal {
   private Random random = new Random();
 
+  /**
+   * Selects random edge for expanding to a new node.
+   *
+   * @param node current node
+   * @param visited set of visited nodes
+   * @return selected edge
+   */
   private Edge selectRandomEdge(Node node, Set<String> visited) {
     List<Edge> possibleEdges =
         node.getEdges().stream()
@@ -31,6 +43,12 @@ public class MonteCarloTraversal implements Traversal {
     return null;
   }
 
+  /**
+   * Generates random traversal path from given starting node.
+   *
+   * @param startNode starting node
+   * @return generated path
+   */
   private TraversalPath randomPath(Node startNode) {
     Set<String> visited = new HashSet<>();
     List<Edge> edges = new ArrayList<>();

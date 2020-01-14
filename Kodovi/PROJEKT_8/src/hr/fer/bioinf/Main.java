@@ -40,7 +40,7 @@ public class Main {
             Params.READS_PATH,
             Params.CONTIGS_READS_OVERLAPS_PATH,
             Params.READS_OVERLAPS_PATH);
-    System.err.printf(
+    System.out.printf(
         "[INFO] Graph successfully built (%d nodes, %d edges).  [%dms]%n",
         graph.getNodes().size(), graph.getEdges().size(), clock.elapsedTime());
 
@@ -51,7 +51,7 @@ public class Main {
     paths = removeDuplicates(paths);
     int pathsSizeEnd = paths.size();
     paths.sort(Comparator.comparingInt(TraversalPath::getEstimatedLength));
-    System.err.printf(
+    System.out.printf(
         "[INFO] Found %d paths between anchoring nodes (removed %d duplicates).  [%dms]%n",
         paths.size(), pathsSizeStart - pathsSizeEnd, clock.elapsedTime());
 
@@ -64,7 +64,7 @@ public class Main {
             .sorted(Comparator.comparingInt(Consensus::getValidIndex))
             .collect(Collectors.toList());
     List<TraversalPath> results = new SequenceBuilder(graph).buildUsingConflictIndex(consensuses);
-    System.err.printf(
+    System.out.printf(
         "[INFO] Found %d resulting paths.  [%dms]%n", results.size(), clock.elapsedTime());
 
     // Output paths
@@ -75,8 +75,8 @@ public class Main {
       writer.write(String.format("%s%n", path.getSequence()));
       writer.close();
 
-      System.err.println();
-      System.err.println(path.summary());
+      System.out.println();
+      System.out.println(path.summary());
       debugPath(path);
     }
   }
@@ -109,7 +109,7 @@ public class Main {
 
   private static void debugPath(TraversalPath path) {
     for (Edge edge : path.getEdges()) {
-      System.err.printf(
+      System.out.printf(
           "[%9s => %9s] -- (from: %d %d) => (to: %d %d)  [OH: %d %d] [EX: %d %d]%n",
           edge.from().node().getID(),
           edge.to().node().getID(),
