@@ -14,8 +14,18 @@ import hr.fer.bioinf.graph.Graph;
 import hr.fer.bioinf.traversal.*;
 import hr.fer.bioinf.utils.Clock;
 
+/**
+ * Class containing methods for starting the whole algorithm.
+ */
 public class Main {
 
+  /**
+   * Main method for starting the algorithm. Takes input parameters (reads, overlaps, SI cutoff,
+   * max depth for DFS etc.) and generates final DNA sequences.
+   *
+   * @param args configuration parameters
+   * @throws IOException
+   */
   public static void main(String[] args) throws IOException {
     System.out.println(ProcessHandle.current().pid());
 
@@ -71,6 +81,12 @@ public class Main {
     }
   }
 
+  /**
+   * Splits all paths into categories by their id (defined by starting and ending contigs).
+   *
+   * @param paths all paths
+   * @return Map of contigs split by their starting and ending contigs.
+   */
   private static Map<String, List<TraversalPath>> splitByID(List<TraversalPath> paths) {
     Map<String, List<TraversalPath>> pathsMapping = new HashMap<>();
     for (TraversalPath path : paths) {
@@ -82,6 +98,11 @@ public class Main {
     return pathsMapping;
   }
 
+  /**
+   * Removes duplicate paths.
+   *
+   * @param paths all paths
+   */
   private static List<TraversalPath> removeDuplicates(List<TraversalPath> paths) {
     return new ArrayList<>(new HashSet<>(paths));
   }

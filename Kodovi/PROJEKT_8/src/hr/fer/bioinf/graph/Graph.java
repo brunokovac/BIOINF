@@ -7,7 +7,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Class modeling a graph constructed based on overlaps between reads and contigs. Overlaps are
+ * acquired using minimap tool and loaded through .paf files.
+ */
 public class Graph {
+  /** Model of node containing both original read and reversed variants of the sequence. */
   public static class NodeDualPair {
     private Node original;
     private Node reversed;
@@ -36,6 +41,10 @@ public class Graph {
     }
   }
 
+  /**
+   * Class containing one half of the overlap information between two nodes acquired by minimap,
+   * such as starting and ending positions of the overlap on one node (query or target).
+   */
   private static class HalfEdge {
     Node node;
     int start;
@@ -60,6 +69,11 @@ public class Graph {
     allNodes = new ArrayList<>();
   }
 
+  /**
+   * Adds nodes to graph, both original and reversed.
+   *
+   * @param nodeDualPair node pair
+   */
   private void addNode(NodeDualPair nodeDualPair) {
     // assert nodeDualPair.original.id == nodeDualPair.reversed.id
     nodes.put(nodeDualPair.original().getID(), nodeDualPair);
@@ -82,6 +96,12 @@ public class Graph {
     return nodeDualPair.original();
   }
 
+  /**
+   * Adds edge to graph. If its sequence identity or extension score is less than 0, edge is not
+   * added.
+   *
+   * @param edge
+   */
   private void addEdge(Edge edge) {
     if (edge.getSequenceIdentity() < Params.SEQUENCE_IDENTITY_CUTOFF
         || edge.getExtensionScore() < 0) {
@@ -95,11 +115,21 @@ public class Graph {
     return edges;
   }
 
+  /**
+   * Constructs graph instance from specific-form files.
+   *
+   * @param contigsPath path to file containing contigs data
+   * @param readsPath path to file containing reads data
+   * @param contigsReadsOverlapsPath path to contig-read overlaps
+   * @param readsReadsOverlapsPath path to file containing read-read overlaps
+   * @return graph instance
+   * @throws IOException
+   */
   public static Graph loadFromFiles(
       String contigsPath,
       String readsPath,
       String contigsReadsOverlapsPath,
-      String contigsContigsOverlapsPath)
+      String readsReadsOverlapsPath)
       throws IOException {
     Graph graph = new Graph();
 
@@ -107,11 +137,19 @@ public class Graph {
     parseFastaFile(readsPath, graph, false);
 
     parsePafFile(contigsReadsOverlapsPath, graph);
-    parsePafFile(contigsContigsOverlapsPath, graph);
+    parsePafFile(readsReadsOverlapsPath, graph);
 
     return graph;
   }
 
+  /**
+   * Parses fasta file containing content for each read or contig. Adds reads and contigs to graph.
+   *
+   * @param path path to fasta file
+   * @param graph graph instance
+   * @param anchor flag marking if nodes are anchors or not
+   * @throws IOException
+   */
   private static void parseFastaFile(String path, Graph graph, boolean anchor) throws IOException {
     List<String> lines = Files.readAllLines(Paths.get(path));
     for (int i = 0, size = lines.size(); i < size; i += 2) {
@@ -124,6 +162,13 @@ public class Graph {
     }
   }
 
+  /**
+   * Parses paf file describing overlaps between nodes. Adds edges between graph nodes.
+   *
+   * @param path path to paf file
+   * @param graph graph instance
+   * @throws IOException
+   */
   private static void parsePafFile(String path, Graph graph) throws IOException {
     for (String line : Files.readAllLines(Paths.get(path))) {
       String data[] = line.split("\t");
@@ -179,6 +224,9 @@ public class Graph {
     }
   }
 
+  /**
+   * A helper method that tries to merge two halves (query and target half) and add edge to graph.
+   */
   private static void mergeHalves(
       Graph graph,
       HalfEdge query,

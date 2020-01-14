@@ -3,8 +3,15 @@ package hr.fer.bioinf.graph;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class modeling each graph node. Node consists of its id, read content, reversed flag based on
+ * reading strand and information if the node is anchoring node. Each node also contains information
+ * about outgoing edges that connect it to other nodes.
+ */
 public class Node {
+  /** Refers to the id of its read or contig. */
   private String id;
+
   private String data;
   private boolean reversed;
   private boolean anchor;
@@ -45,6 +52,7 @@ public class Node {
   }
 
   public void addEdge(Edge edge) {
+    // Ensure that starting node of the edge is this node.
     if (edge.from().node != this) {
       System.err.println("[ERROR] Node::addEdge() received unexpected starting node.");
     }
@@ -57,6 +65,7 @@ public class Node {
 
   @Override
   public int hashCode() {
+    // Node is uniquely defined by tis id and reverse flag.
     int ret = id.hashCode() * 2;
     if (reversed) ret++;
     return ret;
@@ -67,6 +76,7 @@ public class Node {
     if (other == this) return true;
     if (!(other instanceof Node)) return false;
     Node node = (Node) other;
+    // Node is uniquely defined by tis id and reverse flag.
     return id.equals(node.id) && reversed == node.reversed;
   }
 }

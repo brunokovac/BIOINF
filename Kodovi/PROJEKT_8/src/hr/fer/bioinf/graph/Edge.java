@@ -1,6 +1,11 @@
 package hr.fer.bioinf.graph;
 
+/** Class modeling a directed edge between two nodes in a graph. */
 public class Edge {
+  /**
+   * Class containing data about nodes that the edge connects. The data is useful for calculating
+   * various statistics on edge.
+   */
   public static class NodeData {
     Node node;
     int start;
@@ -15,9 +20,12 @@ public class Edge {
       this.overhang = overhang;
       this.extension = extension;
 
+      // Ensure that partial segments sum up to entire sequence.
       if (end - start + overhang + extension != node.length()) {
         System.err.println("[ERROR]: Edge.NodeData::ctor() segments don't sum up.");
-        System.err.printf("          (%d %d)  O: %d  E: %d,  %d%n", start,end,overhang,extension, node.length());
+        System.err.printf(
+            "          (%d %d)  O: %d  E: %d,  %d%n",
+            start, end, overhang, extension, node.length());
         System.exit(1);
       }
     }
@@ -43,7 +51,10 @@ public class Edge {
     }
   }
 
+  /** Data of the starting node. */
   private NodeData from;
+
+  /** Data of the ending node. */
   private NodeData to;
 
   private int numberOfResidueMatches;
@@ -70,10 +81,16 @@ public class Edge {
     return this.to;
   }
 
+  /**
+   * A helper method that initializes sequence identity, overlap score and extension score based on
+   * overlap data from two reads/contigs.
+   *
+   * <p>It is called once before using those statistics.
+   */
   private void initScores() {
     int fromOverlap = from.end - from.start;
     int toOverlap = to.end - to.start;
-    sequenceIdentity = (double)numberOfResidueMatches / Math.max(fromOverlap, toOverlap);
+    sequenceIdentity = (double) numberOfResidueMatches / Math.max(fromOverlap, toOverlap);
     overlapScore = (fromOverlap + toOverlap) * sequenceIdentity / 2;
     extensionScore = overlapScore + to.extension / 2.0 - (from.overhang + to.overhang) / 2.0;
   }
