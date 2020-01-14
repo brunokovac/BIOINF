@@ -85,7 +85,7 @@ Za svaki par \textit{anchor} čvorova računa se konsenzus - struktura podataka 
 \end{figure}
 
 \chapter{Rezultati}
-Implementacija je ispitana na skupovima E. Coli, C. Jejuni i B. Grahamii na jednoj dretvi uz procesorsku moć od ... GHz. Priložene su matrice preklapanja između referentnih skupova te prvo neobrađenih, a odmah zatim i obrađenih \textit{contiga}. Za svaki skup podataka prikazana su moguća poboljšanja sastavljanja \textit{contiga}. Sve matrice dobivene su alatom \textit{Gepard} opisanim u \cite{gepard}. Ishodište je u gornjem lijevom kutu, x-os predstavlja referencu, a y-os predstavlja \textit{contige}. Crne točke označavaju podudaranja. Predznak u opisima matrica označava korištenu orijentaciju \textit{contiga}: + je izvorna, a - reverzna. Npr. +5, -2 znači da je pronađeno povezivanje za izvorno orijentirani \textit{contig} 5 i reverzni 2.
+Implementacija je ispitana na skupovima E. coli, C. jejuni i B. grahamii na jednoj dretvi uz procesorsku moć od ... GHz. Priložene su matrice preklapanja između referentnih skupova te prvo neobrađenih, a odmah zatim i obrađenih \textit{contiga}. Za svaki skup podataka prikazana su moguća poboljšanja sastavljanja \textit{contiga}. Sve matrice dobivene su alatom \textit{Gepard} opisanim u \cite{gepard}. Ishodište je u gornjem lijevom kutu, x-os predstavlja referencu, a y-os predstavlja \textit{contige}. Crne točke označavaju podudaranja. Predznak u opisima matrica označava korištenu orijentaciju \textit{contiga}: + je izvorna, a - reverzna. Npr. +5, -2 znači da je pronađeno povezivanje za izvorno orijentirani \textit{contig} 5 i reverzni 2.
 
 \section{Generirani podaci}
 Implementacija je ispitana i na umjetno generiranom skupu podataka.
@@ -108,13 +108,13 @@ Implementacija je ispitana i na umjetno generiranom skupu podataka.
 
 
 
-\section{E. Coli}
+\section{E. coli}
 Ovo je sintetski skup podataka, shodno čemu su i ostvareni rezultati bolji u usporedbi s narednim dvama, realnim skupovima. Rezultirajući izlazi programa zapravo su inverzi jedan drugog.
 
 \begin{figure}[h]
 	\centering
 	\centerline{\includegraphics[width=0.6\linewidth]{img/ec_contigs}}
-	\caption{Matrica preklapanja neobrađenih \textit{contiga} E. Coli i referentnog skupa.}
+	\caption{Matrica preklapanja neobrađenih \textit{contiga} E. coli i referentnog skupa.}
 	\label{fig:eccontigs}
 \end{figure}
 
@@ -132,13 +132,13 @@ Ovo je sintetski skup podataka, shodno čemu su i ostvareni rezultati bolji u us
 	\label{fig:ec321neg}
 \end{figure}
 
-\section{C. Jejuni}
-Prvi realni skup podataka predstavlja očitanja nad genomom bakterije C. Jejuni.
+\section{C. jejuni}
+Prvi realni skup podataka predstavlja očitanja nad genomom bakterije C. jejuni.
 
 \begin{figure}[h]
 	\centering
 	\centerline{\includegraphics[width=0.6\linewidth]{img/cj_contigs}}
-	\caption{Matrica preklapanja neobrađenih \textit{contiga} C. Jejuni i referentnog skupa.}
+	\caption{Matrica preklapanja neobrađenih \textit{contiga} C. jejuni i referentnog skupa.}
 	\label{fig:cjcontigs}
 	\small
 	Svaki contig predstavljen je jednom bojom. \textit{Contig} 1 (najgornji) već je dakle u ulaznoj datoteci definiran \textit{izlomljeno}, tj. obuhvaća očitanja sa stvarnog početka i kraja.
@@ -151,13 +151,13 @@ Prvi realni skup podataka predstavlja očitanja nad genomom bakterije C. Jejuni.
 	\label{fig:cj53}
 \end{figure}
 
-\section{B. Grahamii}
-Drugi realni skup podataka čine očitanja genoma bakterije B. Grahamii.
+\section{B. grahamii}
+Drugi realni skup podataka čine očitanja genoma bakterije B. grahamii.
 
 \begin{figure}[h]
 	\centering
 	\centerline{\includegraphics[width=0.6\linewidth]{img/bh_contigs}}
-	\caption{Matrica preklapanja neobrađenih \textit{contiga} B. Grahamii i referentnog skupa.}
+	\caption{Matrica preklapanja neobrađenih \textit{contiga} B. grahamii i referentnog skupa.}
 	\label{fig:bhcontigs}
 	\small
 	Svaki contig predstavljen je jednom bojom. Ponovno su vidljive izlomljenosti u ulaznim podacima.
@@ -185,17 +185,17 @@ Drugi realni skup podataka čine očitanja genoma bakterije B. Grahamii.
 	skup podataka & vrijeme (s) & memorija (GiB)\\
 	\hline
 	\hline
-	E. Coli & X & Y \\
+	E. coli & X & Y \\
 	\hline
-	C. Jejuni & B & C \\
+	C. jejuni & B & C \\
 	\hline
-	B. Grahamii & W & Z \\
+	B. grahamii & W & Z \\
 	\hline
 \end{tabular}
 \end{center}
 
 \chapter{Zaključak}
-Zaključak.
+Implementacija uspijeva pronaći poboljšane nizove \textit{contiga}, s većom uspješnošću za sintetski primjer E. coli koji nema dubioznih \textit{contiga} 
 
 \bibliography{literatura}
 \bibliographystyle{fer}
